@@ -93,7 +93,7 @@ Material:
     - _Mode: 3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PollutionFactor: 0.2
+    - _PollutionFactor: 1
     - _PollutionScore: 0
     - _RedShift: 0.95
     - _RippleOffset: 0
