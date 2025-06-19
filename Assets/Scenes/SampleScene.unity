@@ -192,7 +192,6 @@ MonoBehaviour:
   spawnDistanceMin: 50
   spawnDistanceMax: 100
   spawnAngle: 60
-  dangerLevelBias: 0.5
   score: 0
   initialMaxHealth: 100
   seecurrentMaxHp: 0
@@ -204,10 +203,9 @@ MonoBehaviour:
   smoothSpeed: 5
   blinkInterval: 0.5
   lowHealthThreshold: 40
-  pollutionIncreaseRate: 10
+  pollutionIncreaseRate: 1
   pollutionAcceleration: 0.1
   pollutionUpdateInterval: 10
-  highDangerBias: 1
 --- !u!65 &267566033
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -689,15 +687,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waterHeight: 0
-  waterSurfaceHeight: 0
-  maxViewDistance: 200
-  visibilityAtScore0: 120
-  visibilityAtScore10: 60
   clearWaterColor: {r: 0.1, g: 0.3, b: 0.6, a: 0.7}
   pollutedWaterColor: {r: 0.101960786, g: 0.6, b: 0.15898547, a: 0.9}
   fogColorAtScore0: {r: 0.1, g: 0.3, b: 0.4, a: 1}
   fogColorAtScore10: {r: 0.1, g: 0.3, b: 0.2, a: 1}
   underwaterEffectMaterial: {fileID: 2100000, guid: 5232c46895e3cfa47885df474ff964ed, type: 2}
+  visibilityAtScore0: 120
+  visibilityAtScore10: 60
 --- !u!1 &1060918329
 GameObject:
   m_ObjectHideFlags: 0
@@ -1118,15 +1114,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waterHeight: 0
-  waterSurfaceHeight: 0
-  maxViewDistance: 200
-  visibilityAtScore0: 100
-  visibilityAtScore10: 20
   clearWaterColor: {r: 0.1, g: 0.3, b: 0.6, a: 0.7}
   pollutedWaterColor: {r: 0.6, g: 0.5, b: 0.1, a: 0.9}
   fogColorAtScore0: {r: 0.1, g: 0.3, b: 0.4, a: 1}
   fogColorAtScore10: {r: 0.6, g: 0.5, b: 0.1, a: 1}
   underwaterEffectMaterial: {fileID: 2100000, guid: 5232c46895e3cfa47885df474ff964ed, type: 2}
+  visibilityAtScore0: 100
+  visibilityAtScore10: 20
 --- !u!20 &1724276057
 Camera:
   m_ObjectHideFlags: 0
