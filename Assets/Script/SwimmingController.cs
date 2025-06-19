@@ -68,6 +68,13 @@ public class SwimmingController : MonoBehaviour
     public float pollutionUpdateInterval = 10f; // 更新间隔（秒）
     private float pollutionTimer;
     private float currentPollution;
+    [Header("Trash Generation Settings")]
+    // 增加高危害垃圾生成权重
+    [Range(0.5f, 2.0f)] public float highDangerBias = 1.2f;
+    public delegate void PollutionChangedHandler(int newScore);
+    public static event PollutionChangedHandler OnPollutionChanged;
+
+
 
     void Start()
     {
@@ -94,6 +101,7 @@ public class SwimmingController : MonoBehaviour
         HandleTrashSpawning();
         HandleTrashVisibility();
         UpdateHealthUI();
+        
         // 应用击退效果
         if (knockbackVelocity.magnitude > 0.1f)
         {
@@ -105,22 +113,22 @@ public class SwimmingController : MonoBehaviour
         if (pollutionTimer >= pollutionUpdateInterval)
         {
             pollutionTimer = 0f;
-            
+
             // 指数增长模型：污染越高增长越快
             float dynamicRate = pollutionIncreaseRate * Mathf.Pow(1.25f, currentPollution);
-            
+
             // 添加加速因子
             dynamicRate *= (1 + pollutionAcceleration * currentPollution);
-            
+
             currentPollution = Mathf.Min(10f, currentPollution + dynamicRate);
-            
+
             // 更新分数（四舍五入）
             int newScore = Mathf.RoundToInt(currentPollution);
             if (newScore != score)
             {
                 UpdateScore(newScore);
             }
-            
+
             // 调试信息
             Debug.Log($"污染增长: +{dynamicRate:F2} | 当前: {currentPollution:F2}/10");
         }
@@ -192,24 +200,30 @@ public class SwimmingController : MonoBehaviour
 
     void SpawnTrash()
     {
-        int spawnCount = Mathf.Clamp(score / 2 + 1, 1, 5);
-
+        int unlockedLevel = GetUnlockedTrashLevel();
+        int spawnCount = CalculateSpawnCount();
+        
+        Debug.Log($"生成垃圾: 数量={spawnCount} | 解锁等级={unlockedLevel}");
+        
         for (int i = 0; i < spawnCount; i++)
         {
             float dangerLevel = CalculateDangerLevel();
-            GameObject trashPrefab = SelectTrashPrefabByDangerLevel(dangerLevel);
-
-            if (trashPrefab == null)
+            GameObject trashPrefab = SelectTrashPrefabByDangerLevel(dangerLevel, unlockedLevel);
+            
+            if (trashPrefab != null)
             {
-                Debug.LogWarning("No trash prefab available for danger level: " + dangerLevel);
-                continue;
+                Vector3 spawnPosition = CalculateSphereSpawnPosition();
+                GameObject trash = Instantiate(trashPrefab, spawnPosition, Quaternion.identity);
+                activeTrash.Add(trash);
+                
+                // 调试信息
+                TrashBehavior trashBehavior = trash.GetComponent<TrashBehavior>();
+                if (trashBehavior != null)
+                {
+                    Debug.Log($"生成垃圾: 等级={(int)trashBehavior.trashLevel+1} " + 
+                            $"(危险度:{dangerLevel:F2})");
+                }
             }
-
-            Vector3 spawnPosition = CalculateSphereSpawnPosition();
-            GameObject trash = Instantiate(trashPrefab, spawnPosition, Quaternion.identity);
-
-            // 不需要设置等级，预制体已有固定等级
-            activeTrash.Add(trash);
         }
     }
     GameObject SelectTrashPrefabByDangerLevel(float dangerLevel)
@@ -233,15 +247,14 @@ public class SwimmingController : MonoBehaviour
     }
     float CalculateDangerLevel()
     {
-        // 修正危险度计算，添加偏差控制
         float baseDanger = Mathf.Clamp01(score / 10f);
-        float randomOffset = Random.Range(-0.3f, 0.3f);
-
-        // 应用偏差：0.5=平衡，<0.5=更多低危险，>0.5=更多高危险
-        float adjustedDanger = Mathf.Clamp01(baseDanger * dangerLevelBias + randomOffset);
-
-        //Debug.Log($"Danger level: {adjustedDanger:F2} (Base: {baseDanger:F2}, Bias: {dangerLevelBias:F2})");
-        return adjustedDanger;
+        
+        // 基础危险度曲线
+        float expDanger = Mathf.Pow(baseDanger, 0.7f);
+        
+        // 随机偏移（范围随污染度减小）
+        float randomRange = Mathf.Lerp(0.4f, 0.1f, baseDanger);
+        return Mathf.Clamp01(expDanger + Random.Range(-randomRange, randomRange));
     }
     Vector3 CalculateSphereSpawnPosition()
     {
@@ -311,25 +324,28 @@ public class SwimmingController : MonoBehaviour
     }
 
     // =============== 分数管理 ===============
+    // 修改UpdateScore方法
     public void UpdateScore(int newScore)
     {
+        if (newScore == score) return;
+        
         score = Mathf.Clamp(newScore, 0, 10);
-        WaterEffectController waterEffect = FindObjectOfType<WaterEffectController>();
-        if(waterEffect != null) 
-        {
-            waterEffect.UpdatePollution(score);
-        }
-        // 污染等级每2级增加危险度
-        int dangerLevel = Mathf.FloorToInt(score / 2f);
-
+        
+        // 每2级污染度增加垃圾生成强度
+        int pollutionTier = Mathf.FloorToInt(score / 2f);
+        
         // 根据污染等级调整垃圾生成参数
-        maxTrashInView = Mathf.Clamp(10 + dangerLevel * 5, 10, 30);
-        minSpawnInterval = Mathf.Clamp(3.0f - dangerLevel * 0.3f, 0.5f, 3.0f);
-
-        // 调试信息
-        Debug.Log($"污染等级: {score} | 危险度: {dangerLevel} | 垃圾数量: {maxTrashInView} | 生成间隔: {minSpawnInterval}");
+        maxTrashInView = 10 + pollutionTier * 5;
+        minSpawnInterval = 3.0f - pollutionTier * 0.5f;
+        
+        // 触发污染度变化事件
+        if (OnPollutionChanged != null)
+        {
+            OnPollutionChanged(score);
+        }
+        
+        Debug.Log($"污染等级更新: {score} | 解锁等级: {GetUnlockedTrashLevel()}");
     }
-
 
     // =============== 玩家生命管理 ===============
     public void TakeDamage(int damage)
@@ -526,6 +542,43 @@ public class SwimmingController : MonoBehaviour
         if (healthText != null)
             healthText.color = isLowHealth ? lowHealthColor : normalTextColor;
     }
+    private int GetUnlockedTrashLevel()
+    {
+        // 每2级污染度解锁一个危险等级
+        // 污染度0-1: 只解锁1级
+        // 污染度2-3: 解锁1-2级
+        // 污染度4-5: 解锁1-3级
+        // 污染度6-7: 解锁1-4级
+        // 污染度8-10: 解锁1-5级
+        return Mathf.Clamp(1 + Mathf.FloorToInt(score / 2), 1, 5);
+    }
+    private int CalculateSpawnCount()
+    {
+        // 污染度0-1: 生成1-2个垃圾
+        // 污染度2-3: 生成2-3个垃圾
+        // 污染度4-5: 生成3-4个垃圾
+        // 污染度6-7: 生成4-5个垃圾
+        // 污染度8-10: 生成5-6个垃圾
+        int baseCount = 1 + Mathf.FloorToInt(score / 2f);
+        
+        // 添加随机性：±1
+        return Random.Range(baseCount, baseCount + 2);
+    }
+    GameObject SelectTrashPrefabByDangerLevel(float dangerLevel, int maxAllowedLevel)
+    {
+        // 根据最大允许等级调整危险度范围
+        float adjustedDanger = dangerLevel * (maxAllowedLevel / 5f);
+
+        // 根据调整后的危险度选择等级
+        if (adjustedDanger < 0.3f) return RandomTrash(level1TrashPrefabs);
+        if (adjustedDanger < 0.5f) return RandomTrash(level2TrashPrefabs);
+        if (adjustedDanger < 0.7f) return RandomTrash(level3TrashPrefabs);
+        if (adjustedDanger < 0.9f) return RandomTrash(level4TrashPrefabs);
+        return RandomTrash(level5TrashPrefabs);
+    }
+    GameObject RandomTrash(GameObject[] array)
+    {
+        return array.Length > 0 ? array[Random.Range(0, array.Length)] : null;
+    }
 
 }
-//Start()

@@ -189,11 +189,11 @@ MonoBehaviour:
   minSpawnInterval: 0.5
   maxSpawnInterval: 3
   maxTrashInView: 30
-  spawnDistanceMin: 30
+  spawnDistanceMin: 50
   spawnDistanceMax: 100
   spawnAngle: 60
   dangerLevelBias: 0.5
-  score: 10
+  score: 0
   initialMaxHealth: 100
   seecurrentMaxHp: 0
   currentHealth: 0
@@ -204,9 +204,10 @@ MonoBehaviour:
   smoothSpeed: 5
   blinkInterval: 0.5
   lowHealthThreshold: 40
-  pollutionIncreaseRate: 1
-  pollutionAcceleration: 0.25
+  pollutionIncreaseRate: 10
+  pollutionAcceleration: 0.1
   pollutionUpdateInterval: 10
+  highDangerBias: 1
 --- !u!65 &267566033
 BoxCollider:
   m_ObjectHideFlags: 0

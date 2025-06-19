@@ -63,6 +63,17 @@ public class TrashBehavior : MonoBehaviour
 {
     if (other.CompareTag("Player"))
     {
+        string levelName = "";
+        switch (trashLevel)
+        {
+            case TrashLevel.Low: levelName = "Ⅰ级(低危)"; break;
+            case TrashLevel.Medium: levelName = "Ⅱ级(中危)"; break;
+            case TrashLevel.High: levelName = "Ⅲ级(高危)"; break;
+            case TrashLevel.Hazardous: levelName = "Ⅳ级(危险)"; break;
+            case TrashLevel.Extreme: levelName = "Ⅴ级(极端)"; break;
+        }
+        
+        Debug.Log($"玩家撞到 {levelName} 垃圾");
         SwimmingController playerController = other.GetComponent<SwimmingController>();
         if (playerController != null)
         {
@@ -126,17 +137,4 @@ private void HandlePlayerCollision(SwimmingController playerController)
             GetComponent<Collider>().isTrigger = true;
         }
     }
-    /*
-    // 设置垃圾危险度 (0-1)
-    public void SetDangerLevel(float level)
-    {
-        dangerLevel = Mathf.Clamp01(level);
-    }
-    
-    // 设置垃圾等级 (1-5)
-    public void SetTrashLevel(int level)
-    {
-        level = Mathf.Clamp(level, 1, 5);
-        trashLevel = (TrashLevel)(level - 1);
-    }*/
 }

@@ -34,24 +34,16 @@ public class WaterEffectController : MonoBehaviour
     {
         mainCamera = GetComponent<Camera>();
         swimmingController = FindObjectOfType<SwimmingController>();
-
+        
         if (swimmingController == null)
         {
             Debug.LogError("SwimmingController not found in scene.");
             return;
         }
-
-        // 确保有水下效果材质
-        if (underwaterEffectMaterial == null)
-        {
-            CreateUnderwaterEffectMaterial();
-        }
-
-        // 初始化材质参数
-        underwaterEffectMaterial.SetColor("_ClearWaterColor", clearWaterColor);
-        underwaterEffectMaterial.SetColor("_PollutedWaterColor", pollutedWaterColor);
+        
+        // 初始化使用当前污染度
         pollutionFactor = Mathf.Clamp01(swimmingController.score / 10f);
-        targetPollutionFactor = pollutionFactor; // 初始化目标值
+        UpdateVisualEffects();
     }
 
     void Update()
@@ -59,8 +51,8 @@ public class WaterEffectController : MonoBehaviour
         if (swimmingController == null) return;
 
         // 获取当前污染分数并计算污染因子
-        pollutionFactor = Mathf.Lerp(pollutionFactor, targetPollutionFactor, pollutionChangeSpeed * Time.deltaTime);
-
+        if (swimmingController == null) return;
+        isUnderwater = swimmingController.transform.position.y < waterHeight;
         // 更新水下状态
         isUnderwater = swimmingController.transform.position.y < waterHeight;
 
@@ -77,7 +69,7 @@ public class WaterEffectController : MonoBehaviour
     {
         targetPollutionFactor = Mathf.Clamp01(newScore / 10f);
         UpdateFogSettings();
-        
+
         if (underwaterEffectMaterial != null)
         {
             underwaterEffectMaterial.SetFloat("_PollutionFactor", pollutionFactor);
@@ -162,5 +154,38 @@ public class WaterEffectController : MonoBehaviour
         {
             Destroy(underwaterEffectMaterial);
         }
+    }
+    private void OnEnable()
+    {
+        // 订阅污染度变化事件
+        SwimmingController.OnPollutionChanged += HandlePollutionChanged;
+    }
+
+    private void OnDisable()
+    {
+        // 取消订阅
+        SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
+    }
+    private void HandlePollutionChanged(int newScore)
+    {
+        pollutionFactor = Mathf.Clamp01(newScore / 10f);
+
+        // 更新所有视觉效果
+        UpdateVisualEffects();
+    }
+    private void UpdateVisualEffects()
+    {
+        // 更新雾效设置
+        UpdateFogSettings();
+        
+        // 更新着色器参数
+        if (underwaterEffectMaterial != null)
+        {
+            underwaterEffectMaterial.SetFloat("_PollutionFactor", pollutionFactor);
+            underwaterEffectMaterial.SetColor("_ClearWaterColor", clearWaterColor);
+            underwaterEffectMaterial.SetColor("_PollutedWaterColor", pollutedWaterColor);
+        }
+        
+        Debug.Log($"水效更新 | 污染因子: {pollutionFactor}");
     }
 }
