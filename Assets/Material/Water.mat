@@ -105,6 +105,11 @@ Material:
     - _Turbidity: 0.10002725
     - _UVSec: 0
     - _VisibilityAtScore10: 20
+    - _WaveDistortion: 1
+    - _WaveFrequency: 12
+    - _WaveScale: 5.4
+    - _WaveSpeed: 0.6
+    - _WaveStrength: 0.05
     - _ZWrite: 0
     m_Colors:
     - _ClearWaterColor: {r: 0.1, g: 0.3, b: 0.6, a: 0.7}

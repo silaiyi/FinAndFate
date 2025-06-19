@@ -204,7 +204,9 @@ MonoBehaviour:
   smoothSpeed: 5
   blinkInterval: 0.5
   lowHealthThreshold: 40
-  pollutionIncreaseRate: 0.2
+  pollutionIncreaseRate: 1
+  pollutionAcceleration: 0.25
+  pollutionUpdateInterval: 10
 --- !u!65 &267566033
 BoxCollider:
   m_ObjectHideFlags: 0

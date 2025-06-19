@@ -9,11 +9,11 @@ Shader "Custom/UnderwaterEffect"
         
         // 新增波纹效果参数（不使用纹理）
         [Header(Wave Settings)]
-        _WaveSpeed ("Wave Speed", Range(0, 1)) = 0.1
-        _WaveStrength ("Wave Strength", Range(0, 0.1)) = 0.01
-        _WaveScale ("Wave Scale", Range(0.1, 10)) = 1.0
-        _WaveFrequency ("Wave Frequency", Range(1, 20)) = 5.0
-        _WaveDistortion ("Wave Distortion", Range(0, 1)) = 0.5
+        _WaveSpeed("Wave Speed", Range(0, 1)) = 0.08
+        _WaveStrength("Wave Strength", Range(0, 0.1)) = 0.015
+        _WaveScale("Wave Scale", Range(0.1, 10)) = 1.8
+        _WaveFrequency("Wave Frequency", Range(1, 20)) = 7.0
+        _WaveDistortion("Wave Distortion", Range(0, 1)) = 0.4
     }
     SubShader
     {
@@ -90,43 +90,56 @@ Shader "Custom/UnderwaterEffect"
                 float2 screenUV = i.screenPos.xy / i.screenPos.w;
                 
                 // 生成波纹偏移
-                float2 waveOff = waveOffset(screenUV);  // 变量名改为 waveOff
+                float2 waveOff = waveOffset(screenUV);
                 
-                // 污染越高，波纹越弱
-                waveOffset *= (1.0 - _PollutionFactor * 0.5);
+                // 修复：使用正确变量名
+                waveOff *= (1.0 - _PollutionFactor * 0.5);
                 
                 // 应用波纹到主纹理采样
-                float2 distortedUV = i.uv + waveOffset * _WaveDistortion;
+                float2 distortedUV = i.uv + waveOff * _WaveDistortion;
                 fixed4 sceneColor = tex2D(_MainTex, distortedUV);
                 
-                // 计算水体基础颜色
-                fixed4 baseWaterColor = lerp(_ClearWaterColor, _PollutedWaterColor, _PollutionFactor * 0.8f);
-                
-                // 应用水体颜色混合
-                float blendFactor = smoothstep(0.2, 0.7, _PollutionFactor);
-                fixed4 underwaterColor = lerp(sceneColor, baseWaterColor, blendFactor * 0.6f);
-                
-                // 应用浑浊色调
-                float3 darkGreenTint = float3(0.1, 0.25, 0.1);
-                underwaterColor.rgb = lerp(
-                    underwaterColor.rgb, 
-                    darkGreenTint, 
-                    blendFactor * 0.5f
+                // 计算水体基础颜色（增加蓝色通道强度）
+                fixed4 baseWaterColor = lerp(
+                    _ClearWaterColor * float4(1.0, 1.0, 1.5, 1.0), // 增强蓝色
+                    _PollutedWaterColor,
+                    _PollutionFactor * 0.8f
                 );
                 
-                // 减少亮度降低程度
-                underwaterColor.rgb *= lerp(1.0, 0.85f, blendFactor);
+                // 修复：确保初始蓝色可见
+                float minBlend = 0.4; // 最小混合强度
+                float maxBlend = 0.9; // 最大混合强度
+                float blendFactor = lerp(minBlend, maxBlend, _PollutionFactor);
                 
-                // 减少绿色通道增强
-                underwaterColor.g *= lerp(1.0, 1.1f, blendFactor);
+                // 应用水体颜色混合（增加强度）
+                fixed4 underwaterColor = lerp(sceneColor, baseWaterColor, blendFactor);
                 
-                // 减少暗角效果
+                // 调整浑浊色调应用方式
+                float3 blueTint = float3(0.1, 0.3, 0.8); // 更强的蓝色色调
+                float3 greenTint = float3(0.1, 0.3, 0.1); // 污染后的绿色
+                
+                // 根据污染因子混合色调
+                float3 targetTint = lerp(blueTint, greenTint, _PollutionFactor);
+                underwaterColor.rgb = lerp(
+                    underwaterColor.rgb, 
+                    targetTint,
+                    blendFactor * 0.7f // 增强色调影响
+                );
+                
+                // 亮度调整（增强初始亮度）
+                float brightness = lerp(1.0, 0.85f, _PollutionFactor * 0.7f);
+                underwaterColor.rgb *= brightness;
+                
+                // 减少绿色通道增强（仅在高污染时）
+                underwaterColor.g *= lerp(1.0, 1.1f, _PollutionFactor * 0.8f);
+                
+                // 调整暗角效果
                 float2 uv = i.uv * 2.0 - 1.0;
-                float vignette = 1.0 - dot(uv, uv) * 0.15f * blendFactor;
+                float vignette = 1.0 - dot(uv, uv) * 0.15f * _PollutionFactor;
                 underwaterColor.rgb *= vignette;
                 
                 // 保持场景对比度
-                float contrast = lerp(1.0, 1.2f, blendFactor * 0.3f);
+                float contrast = lerp(1.0, 1.2f, _PollutionFactor * 0.3f);
                 underwaterColor.rgb = (underwaterColor.rgb - 0.5f) * contrast + 0.5f;
                 
                 return underwaterColor;

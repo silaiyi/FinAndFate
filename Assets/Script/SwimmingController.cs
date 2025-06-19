@@ -63,10 +63,11 @@ public class SwimmingController : MonoBehaviour
     private const float UI_UPDATE_DELAY = 0.05f; // UI更新延迟
     private float targetSliderValue;          // 滑条目标值
     [Header("Pollution Progression")]
-    public float pollutionIncreaseRate = 0.1f; // 每分钟增加的污染度
+    public float pollutionIncreaseRate = 1.0f; // 基础增长率（每分钟）
+    public float pollutionAcceleration = 0.2f; // 污染加速因子
+    public float pollutionUpdateInterval = 10f; // 更新间隔（秒）
     private float pollutionTimer;
     private float currentPollution;
-
 
     void Start()
     {
@@ -84,7 +85,7 @@ public class SwimmingController : MonoBehaviour
         // 初始化污染系统
         currentPollution = score; // 初始污染度 = 初始分数
         pollutionTimer = 0f;
-        pollutionIncreaseRate = 0.2f; // 每分钟增加0.1污染度
+        pollutionIncreaseRate = 1f; // 每分钟增加0.1污染度
     }
 
     void Update()
@@ -101,19 +102,27 @@ public class SwimmingController : MonoBehaviour
         }
         seecurrentMaxHp = currentMaxHealth;
         pollutionTimer += Time.deltaTime;
-        if (pollutionTimer >= 60f) // 每分钟更新一次
+        if (pollutionTimer >= pollutionUpdateInterval)
         {
             pollutionTimer = 0f;
-
-            // 根据初始分数计算污染增加速度
-            float increaseFactor = Mathf.Clamp(1f - (initialScore / 10f), 0.1f, 1f);
-
-            // 调整污染度增长曲线：前5级增长快，后5级增长更慢
-            float growthRate = (currentPollution < 5f) ? 1.0f : 0.3f; // 后5级增长更慢
-            currentPollution = Mathf.Min(10f, currentPollution + (pollutionIncreaseRate * increaseFactor * growthRate));
-
-            // 更新分数系统
-            UpdateScore(Mathf.FloorToInt(currentPollution));
+            
+            // 指数增长模型：污染越高增长越快
+            float dynamicRate = pollutionIncreaseRate * Mathf.Pow(1.25f, currentPollution);
+            
+            // 添加加速因子
+            dynamicRate *= (1 + pollutionAcceleration * currentPollution);
+            
+            currentPollution = Mathf.Min(10f, currentPollution + dynamicRate);
+            
+            // 更新分数（四舍五入）
+            int newScore = Mathf.RoundToInt(currentPollution);
+            if (newScore != score)
+            {
+                UpdateScore(newScore);
+            }
+            
+            // 调试信息
+            Debug.Log($"污染增长: +{dynamicRate:F2} | 当前: {currentPollution:F2}/10");
         }
     }
     private int initialScore;
@@ -305,7 +314,11 @@ public class SwimmingController : MonoBehaviour
     public void UpdateScore(int newScore)
     {
         score = Mathf.Clamp(newScore, 0, 10);
-
+        WaterEffectController waterEffect = FindObjectOfType<WaterEffectController>();
+        if(waterEffect != null) 
+        {
+            waterEffect.UpdatePollution(score);
+        }
         // 污染等级每2级增加危险度
         int dangerLevel = Mathf.FloorToInt(score / 2f);
 
