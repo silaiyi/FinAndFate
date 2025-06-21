@@ -66,11 +66,20 @@
   <ItemGroup>
     <Compile Include="Assets\Script\WaterEffectController.cs" />
     <Compile Include="Assets\Script\TrashBehavior.cs" />
+    <Compile Include="Assets\Script\NetLOD.cs" />
     <Compile Include="Assets\Script\SwimmingController.cs" />
+    <Compile Include="Assets\Script\PredatorController.cs" />
+    <Compile Include="Assets\Script\FishingBoatController.cs" />
+    <Compile Include="Assets\Script\CoralParticleController.cs" />
+    <Compile Include="Assets\Script\Obstacle.cs" />
+    <Compile Include="Assets\Script\FishingNetVisual.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\UnderwaterEffect.shader" />
-    <None Include="Assets\WaterSurfaceShader.shader" />
+    <None Include="Assets\Shader\FishingNet.shader" />
+    <None Include="Assets\Shader\UnderwaterEffect.shader" />
+    <None Include="Assets\Shader\WaterSurfaceShader.shader" />
+    <None Include="Assets\Shader\BubbleShader.shader" />
+    <None Include="Assets\Shader\NetParticle.shader" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
