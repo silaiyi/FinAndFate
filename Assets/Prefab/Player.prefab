@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6112742251878732380}
   - component: {fileID: 5636751016491427075}
   - component: {fileID: 8269859887921588538}
+  - component: {fileID: 2393385666447577620}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -72,7 +73,10 @@ MonoBehaviour:
   spawnDistanceMin: 50
   spawnDistanceMax: 100
   spawnAngle: 60
-  score: 0
+  carbonScore: 0
+  trashScore: 0
+  fishingScore: 0
+  sewageScore: 0
   initialMaxHealth: 100
   seecurrentMaxHp: 0
   currentHealth: 0
@@ -94,6 +98,17 @@ MonoBehaviour:
   waterSurfaceY: 0
   minDepth: -1
   surfacePushForce: 5
+  foodVarieties: []
+  maxFoodInView: 5
+  minFoodSpawnInterval: 5
+  maxFoodSpawnInterval: 15
+  foodSpawnDistanceMin: 10
+  foodSpawnDistanceMax: 30
+  foodSpawnAngle: 60
+  collisionForce: 5
+  terrainLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!65 &6112742251878732380
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -163,6 +178,27 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!65 &2393385666447577620
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8293157659599672224}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2, y: 2, z: 8}
+  m_Center: {x: 0, y: 0, z: 1.5}
 --- !u!1001 &3800223345492890977
 PrefabInstance:
   m_ObjectHideFlags: 0

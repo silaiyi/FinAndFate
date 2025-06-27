@@ -7,6 +7,9 @@ TagManager:
   - Trash
   - RockObstacle
   - CoralObstacle
+  - Terrain
+  - Companion
+  - BleachedCoral
   layers:
   - Default
   - TransparentFX
@@ -14,7 +17,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Terrain
   - 
   - 
   - 

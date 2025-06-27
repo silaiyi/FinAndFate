@@ -43,6 +43,13 @@ public class PredatorController : MonoBehaviour
 
     private float currentPollutionFactor = 0f;
     private Rigidbody rb;
+    [Header("Debug Settings")]
+    public bool drawPathGizmos = true; // 新增：控制是否繪製路徑
+    public Color pathColor = Color.cyan; // 新增：路徑顏色
+    [Header("Patrol Settings")]
+    public bool pingPongMovement = true; // 新增：啟用往返巡邏模式
+    private int patrolDirection = 1; // 新增：巡邏方向 (1=正向, -1=反向)
+
 
     void Start()
     {
@@ -73,15 +80,28 @@ public class PredatorController : MonoBehaviour
             Debug.Log("Added Rigidbody to predator");
         }
         SwimmingController.OnPollutionChanged += HandlePollutionChanged;
+        patrolDirection = 1; // 初始為正向移動
+
+        Debug.Log("Predator initialized. Starting patrol.");
+        if (OutlineManager.Instance != null)
+        {
+            OutlineManager.Instance.ApplyOutline(gameObject, OutlineManager.Instance.predatorOutlineColor);
+        }
     }
     void OnDestroy()
     {
         // 取消订阅
         SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
+        if (OutlineManager.Instance != null)
+        {
+            OutlineManager.Instance.RemoveOutline(gameObject);
+        }
     }
-    void HandlePollutionChanged(int newScore)
+    // 修改事件處理
+    void HandlePollutionChanged(SwimmingController.PollutionScores newScores)
     {
-        currentPollutionFactor = Mathf.Clamp01(newScore / 10f);
+        // 使用污水分數
+        currentPollutionFactor = Mathf.Clamp01(newScores.sewage / 10f);
         ApplyPollutionEffects();
     }
     void ApplyPollutionEffects()
@@ -91,7 +111,7 @@ public class PredatorController : MonoBehaviour
         maxHorizontalAngle = Mathf.Lerp(baseHorizontalAngle, baseHorizontalAngle * 0.5f, currentPollutionFactor);
         maxVerticalAngle = Mathf.Lerp(baseVerticalAngle, baseVerticalAngle * 0.5f, currentPollutionFactor);
         chaseSpeed = Mathf.Lerp(baseChaseSpeed, maxChaseSpeed, currentPollutionFactor);
-        
+
         Debug.Log($"Pollution updated: {currentPollutionFactor}. New speed: {chaseSpeed}");
     }
     void Update()
@@ -138,8 +158,31 @@ public class PredatorController : MonoBehaviour
 
         if (Vector3.Distance(transform.position, targetPosition) < waypointThreshold)
         {
-            currentPathIndex = (currentPathIndex + 1) % pathPoints.Count;
-            Debug.Log("Moving to next waypoint: " + currentPathIndex);
+            // 根據往返模式更新索引
+            if (pingPongMovement)
+            {
+                // 往返模式
+                currentPathIndex += patrolDirection;
+                
+                // 檢查是否需要改變方向
+                if (currentPathIndex >= pathPoints.Count - 1 && patrolDirection == 1)
+                {
+                    patrolDirection = -1; // 到達終點，轉為反向
+                    Debug.Log("Reached end point - reversing direction");
+                }
+                else if (currentPathIndex <= 0 && patrolDirection == -1)
+                {
+                    patrolDirection = 1; // 回到起點，轉為正向
+                    Debug.Log("Reached start point - reversing direction");
+                }
+            }
+            else
+            {
+                // 原始循環模式
+                currentPathIndex = (currentPathIndex + 1) % pathPoints.Count;
+            }
+            
+            //Debug.Log("Moving to next waypoint: " + currentPathIndex);
         }
     }
 
@@ -431,6 +474,112 @@ public class PredatorController : MonoBehaviour
 
         // 绘制视野锥形
         DrawVisionCone();
+        if (drawPathGizmos && pathPoints != null && pathPoints.Count > 0)
+        {
+            Gizmos.color = pathColor;
+
+            // 繪製所有路徑點和連線
+            for (int i = 0; i < pathPoints.Count; i++)
+            {
+                if (pathPoints[i] == null) continue;
+
+                // 繪製路徑點球體
+                Gizmos.DrawSphere(pathPoints[i].position, 0.5f);
+
+                // 繪製點與點之間的連線
+                if (i < pathPoints.Count - 1 && pathPoints[i + 1] != null)
+                {
+                    Gizmos.DrawLine(pathPoints[i].position, pathPoints[i + 1].position);
+                }
+                // 繪製首尾閉合連線
+                else if (i == pathPoints.Count - 1 && pathPoints[0] != null)
+                {
+                    Gizmos.DrawLine(pathPoints[i].position, pathPoints[0].position);
+                }
+
+                // 標示路徑點編號
+                UnityEditor.Handles.Label(pathPoints[i].position + Vector3.up, $"Point {i}");
+            }
+        }
+        for (int i = 0; i < pathPoints.Count; i++)
+        {
+            if (pathPoints[i] == null) continue;
+
+            Vector3 nextPos = (i == pathPoints.Count - 1)
+                ? pathPoints[0].position
+                : pathPoints[i + 1].position;
+
+            Vector3 dir = (nextPos - pathPoints[i].position).normalized;
+            if (dir.sqrMagnitude > 0.01f)
+            {
+                UnityEditor.Handles.ArrowHandleCap(
+                    0,
+                    pathPoints[i].position,
+                    Quaternion.LookRotation(dir),
+                    1f,
+                    EventType.Repaint
+                );
+            }
+        }
+        if (drawPathGizmos)
+        {
+            DrawPathGizmos();
+        }
+    }
+    void DrawPathGizmos()
+    {
+        if (pathPoints == null || pathPoints.Count == 0) return;
+        
+        Gizmos.color = pathColor;
+        int validPoints = 0;
+
+        // 繪製所有路徑點和連線
+        for (int i = 0; i < pathPoints.Count; i++)
+        {
+            if (pathPoints[i] == null) continue;
+            
+            validPoints++;
+            Vector3 position = pathPoints[i].position;
+            
+            // 繪製路徑點球體
+            Gizmos.DrawSphere(position, 0.5f);
+            
+            // 繪製點與點之間的連線
+            if (i < pathPoints.Count - 1 && pathPoints[i + 1] != null)
+            {
+                Gizmos.DrawLine(position, pathPoints[i + 1].position);
+            }
+            
+            // 在場景視圖中標示路徑點編號
+            #if UNITY_EDITOR
+            UnityEditor.Handles.Label(position + Vector3.up, $"Point {i}");
+            #endif
+        }
+
+        // 如果啟用往返模式，添加方向指示器
+        if (pingPongMovement && validPoints > 1)
+        {
+            // 繪製起點和終點的箭頭
+            DrawDirectionArrow(pathPoints[0].position, pathPoints[1].position, Color.green);
+            DrawDirectionArrow(pathPoints[pathPoints.Count - 1].position, 
+                              pathPoints[pathPoints.Count - 2].position, Color.red);
+        }
+    }
+    void DrawDirectionArrow(Vector3 from, Vector3 to, Color color)
+    {
+        #if UNITY_EDITOR
+        if (pathPoints == null || pathPoints.Count < 2) return;
+        
+        Vector3 direction = (to - from).normalized;
+        float arrowSize = 0.5f;
+        
+        UnityEditor.Handles.color = color;
+        UnityEditor.Handles.ArrowHandleCap(0, 
+            from + direction * arrowSize, 
+            Quaternion.LookRotation(direction), 
+            arrowSize * 2, 
+            EventType.Repaint);
+        #endif
     }
 
     void DrawVisionCone()
@@ -476,5 +625,20 @@ public class PredatorController : MonoBehaviour
                 player.InstantDeath();
             }
         }
+    }
+    private void OnEnable()
+    {
+        SwimmingController.OnPollutionChanged += HandlePollutionChanged;
+        
+        // 立即应用当前污染效果
+        if (SwimmingController.Instance != null)
+        {
+            HandlePollutionChanged(SwimmingController.Instance.GetCurrentPollutionScores());
+        }
+    }
+
+    private void OnDisable()
+    {
+        SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
     }
 }

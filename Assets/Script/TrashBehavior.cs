@@ -16,15 +16,25 @@ public class TrashBehavior : MonoBehaviour
     private bool isExtremeActivated;
     private float nextDamageTime;
     private float poisonStartTime;
+    [Header("Height Restrictions")]
+    public float minHeight = -100f; // 最低高度
+    public float maxHeight = 0f;   // 最高高度
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         SetupCollider();
+        CheckHeightValidity();
     }
     
     void Update()
     {
+        // 新增：持续检查高度是否在有效范围内
+        if (!IsWithinValidHeight())
+        {
+            Destroy(gameObject);
+            return;
+        }
         if (player != null && Vector3.Distance(transform.position, player.position) > despawnDistance)
         {
             Destroy(gameObject);
@@ -45,6 +55,21 @@ public class TrashBehavior : MonoBehaviour
                 playerController.TakeDamage(1);
                 nextDamageTime = Time.time + poisonDamageInterval;
             }
+        }
+    }
+    // 新增：检查高度是否在有效范围内
+    private bool IsWithinValidHeight()
+    {
+        return transform.position.y >= minHeight && transform.position.y <= maxHeight;
+    }
+    
+    // 新增：检查并处理高度有效性
+    private void CheckHeightValidity()
+    {
+        if (!IsWithinValidHeight())
+        {
+            Debug.Log($"Destroying trash at invalid height: {transform.position.y}");
+            Destroy(gameObject);
         }
     }
     

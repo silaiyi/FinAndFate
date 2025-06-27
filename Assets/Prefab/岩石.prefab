@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 749813486b7f82147bb0552d43fd51bc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -167,7 +167,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 749813486b7f82147bb0552d43fd51bc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -270,6 +270,11 @@ MonoBehaviour:
   debrisPrefab: {fileID: 4904971018552116109, guid: 548f5c7afe2695f48bb7dd64535d47f9, type: 3}
   minDebris: 3
   maxDebris: 8
+  bleachedMaterial: {fileID: 2100000, guid: dccfc27ec031e2445ab7a14ea2d69235, type: 2}
+  bleachingDuration: 5
+  disappearanceCheckInterval: 10
+  disappearanceChance: 0.1
+  fadeDuration: 1.5
 --- !u!54 &7603807754490910605
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -312,7 +317,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -380,7 +385,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 749813486b7f82147bb0552d43fd51bc, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

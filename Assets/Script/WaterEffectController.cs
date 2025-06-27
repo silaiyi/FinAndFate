@@ -24,8 +24,7 @@ public class WaterEffectController : MonoBehaviour
     {
         mainCamera = GetComponent<Camera>();
         swimmingController = FindObjectOfType<SwimmingController>();
-        if (swimmingController != null) 
-            pollutionFactor = Mathf.Clamp01(swimmingController.score / 10f);
+        // 移除对 score 的引用
     }
 
     void Update()
@@ -61,12 +60,26 @@ public class WaterEffectController : MonoBehaviour
         RenderSettings.fogColor = Color.Lerp(fogColorAtScore0, fogColorAtScore10, pollutionFactor * 0.6f);
     }
 
-    private void HandlePollutionChanged(int newScore)
+    private void HandlePollutionChanged(SwimmingController.PollutionScores newScores)
     {
-        pollutionFactor = Mathf.Clamp01(newScore / 10f);
+        // 使用污水分數
+        pollutionFactor = Mathf.Clamp01(newScores.sewage / 10f);
         UpdateFogSettings();
     }
 
-    private void OnEnable() => SwimmingController.OnPollutionChanged += HandlePollutionChanged;
-    private void OnDisable() => SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
+    private void OnEnable()
+    {
+        SwimmingController.OnPollutionChanged += HandlePollutionChanged;
+        
+        // 立即应用当前污染效果
+        if (SwimmingController.Instance != null)
+        {
+            HandlePollutionChanged(SwimmingController.Instance.GetCurrentPollutionScores());
+        }
+    }
+
+    private void OnDisable()
+    {
+        SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
+    }
 }
