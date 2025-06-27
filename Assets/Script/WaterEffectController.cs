@@ -12,8 +12,11 @@ public class WaterEffectController : MonoBehaviour
     public Material underwaterEffectMaterial;
 
     [Header("Visibility Settings")]
-    public float visibilityAtScore0 = 100f;
-    public float visibilityAtScore10 = 50f;
+    //public float visibilityAtScore0 = 200f;
+    //public float visibilityAtScore10 = 80f;
+    public float maxVisibility = 200f;  // 最大能见度
+    public float minVisibility = 80f;   // 最小能见度
+    public int maxPollutionLevel = 5;   // 雾效最大等级
 
     private SwimmingController swimmingController;
     private Camera mainCamera;
@@ -47,23 +50,44 @@ public class WaterEffectController : MonoBehaviour
             underwaterEffectMaterial : null);
     }
 
+    // WaterEffectController.cs
     void UpdateFogSettings()
     {
-        float visibilityFactor = Mathf.Pow(pollutionFactor, 0.4f);
-        float fogStart = Mathf.Lerp(visibilityAtScore0, visibilityAtScore10, visibilityFactor);
-        float fogEnd = fogStart * 1.5f;
-
+        // 计算污染等级（0-5之间）
+        int pollutionLevel = Mathf.Min(maxPollutionLevel, swimmingController.sewageScore);
+        
+        // 计算雾效强度（0-1之间）
+        float fogIntensity = (float)pollutionLevel / maxPollutionLevel;
+        
+        // 计算能见度（污染等级越高，能见度越低）
+        float visibility = Mathf.Lerp(maxVisibility, minVisibility, fogIntensity);
+        
+        // 设置雾效参数
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.Linear;
-        RenderSettings.fogStartDistance = fogStart;
-        RenderSettings.fogEndDistance = fogEnd;
-        RenderSettings.fogColor = Color.Lerp(fogColorAtScore0, fogColorAtScore10, pollutionFactor * 0.6f);
+        RenderSettings.fogStartDistance = visibility * 0.7f;
+        RenderSettings.fogEndDistance = visibility;
+        
+        // 设置雾效颜色
+        RenderSettings.fogColor = Color.Lerp(
+            fogColorAtScore0, 
+            fogColorAtScore10, 
+            fogIntensity
+        );
+        
+        // 更新水下材质效果（限制最大强度）
+        if (underwaterEffectMaterial != null)
+        {
+            // 使用平方根曲线减缓高污染效果
+            float materialFactor = Mathf.Sqrt(fogIntensity);
+            underwaterEffectMaterial.SetFloat("_PollutionFactor", materialFactor);
+        }
     }
 
     private void HandlePollutionChanged(SwimmingController.PollutionScores newScores)
     {
         // 使用污水分數
-        pollutionFactor = Mathf.Clamp01(newScores.sewage / 10f);
+        //pollutionFactor = Mathf.Clamp01(newScores.sewage / 10f);
         UpdateFogSettings();
     }
 

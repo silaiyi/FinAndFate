@@ -8,7 +8,7 @@ public class SwimmingController : MonoBehaviour
 {
     #region Singleton
     public static SwimmingController Instance { get; private set; }
-    
+
     void Awake()
     {
         if (Instance == null)
@@ -134,16 +134,16 @@ public class SwimmingController : MonoBehaviour
     private Vector3 cameraVelocity;
     private Rigidbody rb;
     private Vector3 lastSafePosition;
-    
+
     // Trash & Food
     private List<GameObject> activeTrash = new List<GameObject>();
     private List<GameObject> activeFood = new List<GameObject>();
     private float nextSpawnTime;
     private float nextFoodSpawnTime;
-    
+
     // Camera
     private Camera mainCamera;
-    
+
     // Health UI
     private bool isLowHealth = false;
     private Coroutine blinkCoroutine;
@@ -152,7 +152,7 @@ public class SwimmingController : MonoBehaviour
     private float pollutionTimer;
     private float currentPollution;
     private float targetSliderValue;
-    
+
     // Pollution
     private PollutionScores currentPollutionScores;
     #endregion
@@ -168,7 +168,7 @@ public class SwimmingController : MonoBehaviour
 
     public delegate void PollutionChangedHandler(PollutionScores newScores);
     public static event PollutionChangedHandler OnPollutionChanged;
-    
+
     public enum ObstacleType { None, Coral, Rock }
     #endregion
     public float fishingScoreIncreaseMultiplier = 1.5f;
@@ -238,7 +238,7 @@ public class SwimmingController : MonoBehaviour
             trashScore = PlayerPrefs.GetInt("TrashScore");
             fishingScore = PlayerPrefs.GetInt("FishingScore");
             sewageScore = PlayerPrefs.GetInt("SewageScore");
-            
+
             Debug.Log($"Loaded pollution scores from PlayerPrefs: " +
                      $"C={carbonScore}, T={trashScore}, " +
                      $"F={fishingScore}, S={sewageScore}");
@@ -308,7 +308,7 @@ public class SwimmingController : MonoBehaviour
             Quaternion pitchRotation = Quaternion.AngleAxis(-pitch, transform.right);
 
             currentForwardDirection = yawRotation * pitchRotation * currentForwardDirection;
-            
+
             if (rb != null)
             {
                 rb.MoveRotation(Quaternion.LookRotation(currentForwardDirection));
@@ -353,7 +353,7 @@ public class SwimmingController : MonoBehaviour
         );
     }
 
-    Vector3 CalculateCameraPosition() => 
+    Vector3 CalculateCameraPosition() =>
         cameraTarget.position + (-currentForwardDirection * cameraDistance) + (Vector3.up * cameraHeight);
 
     /******************************************************************
@@ -557,7 +557,7 @@ public class SwimmingController : MonoBehaviour
         return cameraPos + cameraAlignedDirection * distance;
     }
 
-    float CalculateFoodSpawnInterval() => 
+    float CalculateFoodSpawnInterval() =>
         Random.Range(minFoodSpawnInterval, maxFoodSpawnInterval);
 
     /******************************************************************
@@ -730,7 +730,7 @@ public class SwimmingController : MonoBehaviour
                 sewage = sewageScore
             };
             OnPollutionChanged?.Invoke(newScores);
-            
+
             Debug.Log($"Pollution increased: C+{carbonInt} T+{trashInt} F+{fishingInt} S+{sewageInt}");
         }
     }
@@ -837,7 +837,7 @@ public class SwimmingController : MonoBehaviour
         }
     }
 
-    bool IsPlayerStuck() => 
+    bool IsPlayerStuck() =>
         Physics.CheckSphere(transform.position, 0.5f, terrainLayer);
 
     void OnCollisionStay(Collision collision)
@@ -910,5 +910,23 @@ public class SwimmingController : MonoBehaviour
         {
             renderer.material.color = Color.red;
         }
+    }
+    // SwimmingController.cs
+    public void ResetPlayerState()
+    {
+        currentHealth = currentMaxHealth;
+        targetSliderValue = currentHealth;
+        isHiding = false;
+        currentObstacleType = ObstacleType.None;
+        currentHideObstacle = null;
+        knockbackVelocity = Vector3.zero;
+        
+        // 重置UI
+        if (healthSlider != null)
+        {
+            healthSlider.value = currentHealth;
+            healthSlider.maxValue = currentMaxHealth;
+        }
+        UpdateHealthText();
     }
 }

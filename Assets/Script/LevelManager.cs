@@ -51,6 +51,7 @@ public GameObject companionInstance { get; private set; } // 修改访问权限�
     {
         player = GameObject.FindGameObjectWithTag("Player");
         SpawnCompanion();
+        ResetLevelState(); // 重置关卡状态
 
         levelStartTime = Time.time;
         levelCompleted = false;
@@ -146,18 +147,30 @@ public GameObject companionInstance { get; private set; } // 修改访问权限�
         PlayerPrefs.Save();
     }
 
+    // LevelManager.cs
     public void RestartLevel()
     {
         Time.timeScale = 1f;
         
-        // 销毁 SwimmingController 实例
+        // 重置玩家狀態
         if (SwimmingController.Instance != null)
         {
-            Destroy(SwimmingController.Instance.gameObject);
+            // 重置玩家健康狀態
+            SwimmingController.Instance.ResetPlayerState();
         }
         
         // 重新加载场景
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    // 新增重置方法
+    public void ResetLevelState()
+    {
+        levelCompleted = false;
+        levelStartTime = Time.time;
+        if (companionInstance != null) Destroy(companionInstance);
+        SpawnCompanion();
+        resultPanel.SetActive(false);
     }
 
     public void ReturnToMenu()
