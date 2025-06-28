@@ -33,6 +33,7 @@ public class PredatorController : MonoBehaviour
     private float nextVisionCheck;
     private Vector3 lastKnownPlayerPosition;
     private float returnToPathThreshold = 1f;
+    
     [Header("Pollution Settings")]
     public float baseDetectionRadius = 200f;
     public float baseChaseRadius = 200f;
@@ -43,9 +44,11 @@ public class PredatorController : MonoBehaviour
 
     private float currentPollutionFactor = 0f;
     private Rigidbody rb;
+    
     [Header("Debug Settings")]
     public bool drawPathGizmos = true; // 新增：控制是否繪製路徑
     public Color pathColor = Color.cyan; // 新增：路徑顏色
+    
     [Header("Patrol Settings")]
     public bool pingPongMovement = true; // 新增：啟用往返巡邏模式
     private int patrolDirection = 1; // 新增：巡邏方向 (1=正向, -1=反向)
@@ -88,6 +91,7 @@ public class PredatorController : MonoBehaviour
             OutlineManager.Instance.ApplyOutline(gameObject, OutlineManager.Instance.predatorOutlineColor);
         }
     }
+    
     void OnDestroy()
     {
         // 取消订阅
@@ -97,6 +101,7 @@ public class PredatorController : MonoBehaviour
             OutlineManager.Instance.RemoveOutline(gameObject);
         }
     }
+    
     // 修改事件處理
     void HandlePollutionChanged(SwimmingController.PollutionScores newScores)
     {
@@ -104,6 +109,7 @@ public class PredatorController : MonoBehaviour
         currentPollutionFactor = Mathf.Clamp01(newScores.sewage / 10f);
         ApplyPollutionEffects();
     }
+    
     void ApplyPollutionEffects()
     {
         detectionRadius = Mathf.Lerp(baseDetectionRadius, baseDetectionRadius * 0.5f, currentPollutionFactor);
@@ -114,6 +120,7 @@ public class PredatorController : MonoBehaviour
 
         Debug.Log($"Pollution updated: {currentPollutionFactor}. New speed: {chaseSpeed}");
     }
+    
     void Update()
     {
         switch (currentState)
@@ -124,7 +131,15 @@ public class PredatorController : MonoBehaviour
                 break;
 
             case PredatorState.Chasing:
-                ChasePlayer();
+                // 新增：检查玩家是否切换了躲藏状态
+                if (playerController != null && playerController.isHiding)
+                {
+                    HandleHidingPlayer();
+                }
+                else
+                {
+                    ChasePlayer();
+                }
                 break;
 
             case PredatorState.Destroying:
@@ -301,6 +316,15 @@ public class PredatorController : MonoBehaviour
 
     void HandleHidingPlayer()
     {
+        // 新增：如果当前正在破坏珊瑚，但玩家切换到了岩石
+        if (currentState == PredatorState.Destroying && 
+            playerController.currentObstacleType == SwimmingController.ObstacleType.Rock)
+        {
+            Debug.Log("Player switched to rock while destroying coral - aborting");
+            StartReturning();
+            return;
+        }
+
         if (playerController.currentObstacleType == SwimmingController.ObstacleType.None)
         {
             return;
@@ -310,7 +334,8 @@ public class PredatorController : MonoBehaviour
         switch (playerController.currentObstacleType)
         {
             case SwimmingController.ObstacleType.Coral:
-                if (targetObstacle == null)
+                // 新增：如果已经在破坏珊瑚，不要重复设置
+                if (currentState != PredatorState.Destroying)
                 {
                     targetObstacle = playerController.currentHideObstacle;
                     if (targetObstacle != null)
@@ -365,8 +390,9 @@ public class PredatorController : MonoBehaviour
                     obstacle.DestroyObstacle();
                 }
 
-                // 破坏后检查玩家是否可见
-                if (IsPlayerVisible())
+                // 新增：更智能的玩家检测
+                bool playerVisible = CheckPlayerAfterDestruction();
+                if (playerVisible)
                 {
                     Debug.Log("Player visible after destruction - chasing");
                     currentState = PredatorState.Chasing;
@@ -385,6 +411,31 @@ public class PredatorController : MonoBehaviour
         {
             playerController.InstantDeath();
         }
+    }
+    
+    // 新增：破坏珊瑚后的玩家检测方法
+    bool CheckPlayerAfterDestruction()
+    {
+        if (playerTransform == null) return false;
+        
+        // 检查玩家是否还在躲藏
+        if (playerController.isHiding) return false;
+        
+        // 360度全方位检测
+        Vector3 toPlayer = playerTransform.position - transform.position;
+        float distance = toPlayer.magnitude;
+        
+        // 距离检测（比追击半径更宽松）
+        if (distance > chaseRadius * 1.5f) return false;
+        
+        // 视线检测
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, toPlayer.normalized, out hit, distance))
+        {
+            return hit.collider.CompareTag("Player");
+        }
+        
+        return false;
     }
 
     void StartReturning()
@@ -526,6 +577,7 @@ public class PredatorController : MonoBehaviour
             DrawPathGizmos();
         }
     }
+    
     void DrawPathGizmos()
     {
         if (pathPoints == null || pathPoints.Count == 0) return;
@@ -565,6 +617,7 @@ public class PredatorController : MonoBehaviour
                               pathPoints[pathPoints.Count - 2].position, Color.red);
         }
     }
+    
     void DrawDirectionArrow(Vector3 from, Vector3 to, Color color)
     {
         #if UNITY_EDITOR
@@ -598,6 +651,7 @@ public class PredatorController : MonoBehaviour
         Gizmos.DrawRay(transform.position, upDir * detectionRadius);
         Gizmos.DrawRay(transform.position, downDir * detectionRadius);
     }
+    
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
@@ -609,11 +663,13 @@ public class PredatorController : MonoBehaviour
             }
         }
     }
+    
     void OnTriggerEnter(Collider other)
     {
         Debug.Log($"Trigger with {other.gameObject.name}");
         HandlePlayerCollision(other.gameObject);
     }
+    
     void HandlePlayerCollision(GameObject obj)
     {
         if (obj.CompareTag("Player"))
@@ -626,6 +682,7 @@ public class PredatorController : MonoBehaviour
             }
         }
     }
+    
     private void OnEnable()
     {
         SwimmingController.OnPollutionChanged += HandlePollutionChanged;

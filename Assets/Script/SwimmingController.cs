@@ -15,7 +15,7 @@ public class SwimmingController : MonoBehaviour
         {
             Instance = this;
             // 确保跨场景时对象不被销毁
-            DontDestroyOnLoad(gameObject);
+            //DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -126,6 +126,16 @@ public class SwimmingController : MonoBehaviour
     public LayerMask terrainLayer;
     #endregion
 
+    #region Sardine School Settings
+    [Header("Sardine School Settings")]
+    public GameObject sardinePrefab; // 沙丁鱼预制体
+    public int maxSardines = 10;    // 最大沙丁鱼数量
+    public float sardineSpacing = 1.5f; // 沙丁鱼间距
+    public float followSpeed = 3f;  // 沙丁鱼跟随速度
+
+    private List<GameObject> _sardines = new List<GameObject>(); // 沙丁鱼群列表
+    #endregion
+
     #region Private Variables
     // Movement & Physics
     private Vector3 knockbackVelocity;
@@ -155,6 +165,15 @@ public class SwimmingController : MonoBehaviour
 
     // Pollution
     private PollutionScores currentPollutionScores;
+    
+    // 污染分数的小数部分
+    private float carbonFraction;
+    private float trashFraction;
+    private float fishingFraction;
+    private float sewageFraction;
+    
+    // 新增：无敌状态标志
+    private bool isInvulnerable = false;
     #endregion
 
     #region Structures & Enums
@@ -171,11 +190,11 @@ public class SwimmingController : MonoBehaviour
 
     public enum ObstacleType { None, Coral, Rock }
     #endregion
-    public float fishingScoreIncreaseMultiplier = 1.5f;
-    private float carbonFraction;
-    private float trashFraction;
-    private float fishingFraction;
-    private float sewageFraction;
+    
+    [Header("Safe Zone Settings")]
+    public SafeZoneController safeZone;
+    private bool isInSafeZone = true;
+    private float lastDamageTime;
 
     /******************************************************************
      * INITIALIZATION & CORE GAMEPLAY LOOP
@@ -188,6 +207,32 @@ public class SwimmingController : MonoBehaviour
         InitializeHealth();
         InitializeFoodSystem();
         InitializePhysics();
+        InitializeSardineSchool(); // 初始化沙丁鱼群
+        
+        // 设置初始安全区状态
+        isInSafeZone = true;
+        lastDamageTime = Time.time;
+        //DontDestroyOnLoad
+        
+        // 添加玩家初始保护期（2秒无敌时间）
+        StartCoroutine(InitialProtection());
+    }
+    
+    // 初始保护期协程
+    private IEnumerator InitialProtection()
+    {
+        isInvulnerable = true; // 开启无敌状态
+        float protectionTime = 2f;
+        float timer = 0f;
+        
+        while (timer < protectionTime)
+        {
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        
+        isInvulnerable = false; // 关闭无敌状态
+        Debug.Log("Initial protection ended");
     }
 
     void FixedUpdate()
@@ -207,9 +252,154 @@ public class SwimmingController : MonoBehaviour
         UpdatePollutionOverTime();
         HandleCoralDamage();
         LimitPlayerDepth();
+        UpdateSardineSchool(); // 更新沙丁鱼群
+        CheckSafeZoneStatus();
     }
 
     void LateUpdate() => UpdateCamera();
+    
+    private void CheckSafeZoneStatus()
+    {
+        // 确保只在Level2场景执行安全区检测
+        if (SceneManager.GetActiveScene().name != "Level2") 
+        {
+            isInSafeZone = true;
+            return;
+        }
+
+        // 确保安全区控制器已初始化
+        if (safeZone == null)
+        {
+            safeZone = FindObjectOfType<SafeZoneController>();
+            
+            // 如果仍然找不到，记录错误并返回
+            if (safeZone == null)
+            {
+                Debug.LogError("SafeZoneController not found! Skipping safety check.");
+                return; // 直接返回，不执行后续逻辑
+            }
+            else
+            {
+                // 初始化安全区状态
+                isInSafeZone = safeZone.IsPositionInSafeZone(transform.position);
+                lastDamageTime = Time.time;
+            }
+        }
+
+        bool wasInSafeZone = isInSafeZone;
+        isInSafeZone = safeZone.IsPositionInSafeZone(transform.position);
+        
+        // 进入安全区
+        if (!wasInSafeZone && isInSafeZone)
+        {
+            Debug.Log("进入安全区");
+            WaterEffectController.Instance?.SetDangerZoneState(false);
+        }
+        // 离开安全区
+        else if (wasInSafeZone && !isInSafeZone)
+        {
+            Debug.Log("离开安全区!");
+            lastDamageTime = Time.time;
+            WaterEffectController.Instance?.SetDangerZoneState(true);
+        }
+        
+        // 在安全区外受到伤害 - 每秒1点伤害
+        if (safeZone != null && !isInSafeZone && Time.time > lastDamageTime + 1f)
+        {
+            TakeDamage(1); // 每秒1点伤害
+            lastDamageTime = Time.time;
+        }
+    }
+
+    /******************************************************************
+     * SARDINE SCHOOL SYSTEM
+     ******************************************************************/
+    private void InitializeSardineSchool()
+{
+    // 只在Level2場景激活沙丁魚群
+    if (SceneManager.GetActiveScene().name != "Level2") return;
+
+    // 清除現有沙丁魚
+    ClearSardines();
+
+    // 根據當前生命值計算沙丁魚數量
+    int sardineCount = CalculateSardineCount();
+
+    // 創建沙丁魚群
+    for (int i = 0; i < sardineCount; i++)
+    {
+        Vector3 spawnPos = transform.position +
+                        Random.insideUnitSphere * sardineSpacing;
+
+        GameObject sardine = Instantiate(
+            sardinePrefab,
+            spawnPos,
+            Quaternion.identity
+        );
+
+        // 設置沙丁魚行為
+        SardineFollow followScript = sardine.GetComponent<SardineFollow>();
+        if (followScript != null)
+        {
+            followScript.leader = transform;
+            followScript.formationRadius = sardineSpacing * 2f;
+            
+            // 分配不同的魚群位置類型
+            if (i < sardineCount * 0.4f) // 40% 側翼護衛
+            {
+                followScript.formationType = SardineFollow.FormationType.Flank;
+            }
+            else if (i < sardineCount * 0.7f) // 30% 後方跟隨
+            {
+                followScript.formationType = SardineFollow.FormationType.Trailing;
+            }
+            else // 30% 前方偵查
+            {
+                followScript.formationType = SardineFollow.FormationType.Scouting;
+            }
+        }
+
+        sardine.name = $"Sardine_{i}";
+        _sardines.Add(sardine);
+    }
+}
+
+    // 更新沙丁鱼群
+    private void UpdateSardineSchool()
+    {
+        // 只在Level2场景更新沙丁鱼群
+        if (SceneManager.GetActiveScene().name != "Level2") 
+        {
+            // 如果不在Level2但还有沙丁鱼，清除它们
+            if (_sardines.Count > 0) ClearSardines();
+            return;
+        }
+
+        // 计算当前应有的沙丁鱼数量
+        int targetCount = CalculateSardineCount();
+        
+        // 如果数量不匹配，重新初始化鱼群
+        if (_sardines.Count != targetCount)
+        {
+            InitializeSardineSchool();
+        }
+    }
+
+    // 计算沙丁鱼数量
+    private int CalculateSardineCount()
+    {
+        return Mathf.Clamp(currentMaxHealth / 10, 1, maxSardines);
+    }
+
+    // 清除所有沙丁鱼
+    private void ClearSardines()
+    {
+        foreach (var sardine in _sardines)
+        {
+            if (sardine != null) Destroy(sardine);
+        }
+        _sardines.Clear();
+    }
 
     /******************************************************************
      * INITIALIZATION METHODS
@@ -257,11 +447,12 @@ public class SwimmingController : MonoBehaviour
         currentPollution = (carbonScore + trashScore + fishingScore + sewageScore) / 4f;
         pollutionTimer = 0f;
     }
+    
 
     private void InitializeHealth()
     {
         currentMaxHealth = initialMaxHealth;
-        currentHealth = initialMaxHealth;
+        currentHealth = currentMaxHealth; // 确保初始满血
         InitializeHealthUI();
         nextCoralDamageTime = Time.time + coralDamageInterval;
         seecurrentMaxHp = currentMaxHealth;
@@ -565,13 +756,31 @@ public class SwimmingController : MonoBehaviour
      ******************************************************************/
     public void TakeDamage(int damage)
     {
-        currentHealth = Mathf.Max(0, currentHealth - damage);
+        // 无敌状态下忽略伤害
+        if (isInvulnerable) 
+        {
+            Debug.Log("Damage blocked during invulnerability period.");
+            return;
+        }
+        
+        // 确保不会出现负数血量
+        int newHealth = Mathf.Max(0, currentHealth - damage);
+        
+        // 添加调试日志
+        Debug.Log($"TakeDamage: {damage}, From: {currentHealth} to {newHealth}");
+        
+        currentHealth = newHealth;
         targetSliderValue = currentHealth;
 
         if (healthSlider != null) healthSlider.value = currentHealth;
         UpdateHealthText();
 
-        if (currentHealth <= 0) Die();
+        // 确保血量归零时必定触发死亡
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Health reached zero, triggering Die()");
+            Die();
+        }
     }
 
     public void Heal(int amount)
@@ -581,6 +790,7 @@ public class SwimmingController : MonoBehaviour
 
         if (healthSlider != null) healthSlider.value = currentHealth;
         UpdateHealthText();
+        UpdateSardineSchool(); // 血量变化时更新鱼群
     }
 
     public void ReduceMaxHealth(int amount)
@@ -596,6 +806,7 @@ public class SwimmingController : MonoBehaviour
         }
 
         UpdateHealthText();
+        UpdateSardineSchool(); // 血量变化时更新鱼群
     }
 
     public void ApplyKnockback(Vector3 force) => knockbackVelocity = force;
@@ -603,10 +814,33 @@ public class SwimmingController : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player died!");
+        
+        // 添加安全机制：确保LevelManager实例可用
         if (LevelManager.Instance != null)
         {
             LevelManager.Instance.LevelComplete(false);
         }
+        else
+        {
+            Debug.LogError("LevelManager instance is null! Attempting to find one...");
+            LevelManager manager = FindObjectOfType<LevelManager>();
+            if (manager != null)
+            {
+                manager.LevelComplete(false);
+            }
+            else
+            {
+                Debug.LogError("No LevelManager found in scene! Game over cannot be triggered.");
+                
+                // 最低限度处理：暂停游戏
+                Time.timeScale = 0f;
+            }
+        }
+        
+        ClearSardines();
+        
+        // 确保玩家状态被标记为死亡
+        gameObject.SetActive(false);
     }
 
     void InitializeHealthUI()
@@ -691,37 +925,44 @@ public class SwimmingController : MonoBehaviour
             float dynamicRate = pollutionIncreaseRate * Mathf.Pow(1.25f, totalScore);
             dynamicRate *= (1 + pollutionAcceleration * totalScore);
 
-            // 計算浮點數增量
+            // 添加最大值限制，防止污染分数意外增加
+            if (carbonScore >= 10 && trashScore >= 10 && fishingScore >= 10 && sewageScore >= 10)
+            {
+                Debug.Log("Pollution scores already at maximum, skipping increase");
+                return;
+            }
+
+            // 计算浮点数增量
             float carbonIncrease = dynamicRate * 0.25f;
             float trashIncrease = dynamicRate * 0.25f;
             float fishingIncrease = dynamicRate * 0.25f;
             float sewageIncrease = dynamicRate * 0.25f;
 
-            // 累積小數部分
+            // 累积小数部分
             carbonFraction += carbonIncrease;
             trashFraction += trashIncrease;
             fishingFraction += fishingIncrease;
             sewageFraction += sewageIncrease;
 
-            // 處理整數增量
+            // 处理整数增量
             int carbonInt = (int)carbonFraction;
             int trashInt = (int)trashFraction;
             int fishingInt = (int)fishingFraction;
             int sewageInt = (int)sewageFraction;
 
-            // 更新分數（限制最大值30）
+            // 更新分数（限制最大值10）
             carbonScore = Mathf.Min(carbonScore + carbonInt, 10);
             trashScore = Mathf.Min(trashScore + trashInt, 10);
             fishingScore = Mathf.Min(fishingScore + fishingInt, 10);
             sewageScore = Mathf.Min(sewageScore + sewageInt, 10);
 
-            // 保留小數部分
+            // 保留小数部分
             carbonFraction -= carbonInt;
             trashFraction -= trashInt;
             fishingFraction -= fishingInt;
             sewageFraction -= sewageInt;
 
-            // 觸發事件
+            // 触发事件
             PollutionScores newScores = new PollutionScores
             {
                 carbon = carbonScore,
@@ -911,15 +1152,21 @@ public class SwimmingController : MonoBehaviour
             renderer.material.color = Color.red;
         }
     }
-    // SwimmingController.cs
+    
+    // 修改 ResetPlayerState 方法
     public void ResetPlayerState()
     {
-        currentHealth = currentMaxHealth;
+        currentHealth = Mathf.Max(1, currentMaxHealth);
         targetSliderValue = currentHealth;
         isHiding = false;
         currentObstacleType = ObstacleType.None;
         currentHideObstacle = null;
         knockbackVelocity = Vector3.zero;
+        isInvulnerable = false; // 重置无敌状态
+        
+        // 重置安全区状态
+        isInSafeZone = true;
+        lastDamageTime = Time.time;
         
         // 重置UI
         if (healthSlider != null)
@@ -928,5 +1175,9 @@ public class SwimmingController : MonoBehaviour
             healthSlider.maxValue = currentMaxHealth;
         }
         UpdateHealthText();
+        
+        // 重置沙丁鱼群
+        ClearSardines();
+        InitializeSardineSchool();
     }
 }

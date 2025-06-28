@@ -70,10 +70,13 @@
     <Compile Include="Assets\Script\NetLOD.cs" />
     <Compile Include="Assets\Script\SwimmingController.cs" />
     <Compile Include="Assets\Script\FoodBehavior.cs" />
+    <Compile Include="Assets\Script\SardineFollow.cs" />
     <Compile Include="Assets\Script\StartMenuManager.cs" />
     <Compile Include="Assets\Script\PredatorController.cs" />
     <Compile Include="Assets\Script\LevelManager.cs" />
+    <Compile Include="Assets\Script\FishBoatManager.cs" />
     <Compile Include="Assets\Script\FishingBoatController.cs" />
+    <Compile Include="Assets\Script\SafeZoneBoundary.cs" />
     <Compile Include="Assets\Script\QuestionnaireManager.cs" />
     <Compile Include="Assets\Script\DirectionIndicator.cs" />
     <Compile Include="Assets\Script\GameSceneManager.cs" />
@@ -81,12 +84,11 @@
     <Compile Include="Assets\Script\CoralParticleController.cs" />
     <Compile Include="Assets\Script\Obstacle.cs" />
     <Compile Include="Assets\Script\OutlineManager.cs" />
-    <Compile Include="Assets\Script\FishingNetVisual.cs" />
+    <Compile Include="Assets\Script\SafeZoneController.cs" />
     <Compile Include="Assets\Script\CompanionBehavior.cs" />
     <Compile Include="Assets\Script\CoralPresenceController.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Shader\Outline.shader" />
     <None Include="Assets\Shader\FishingNet.shader" />
     <None Include="Assets\Shader\UnderwaterEffect.shader" />
     <None Include="Assets\Shader\WaterSurfaceShader.shader" />

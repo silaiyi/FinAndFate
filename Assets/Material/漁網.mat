@@ -7,18 +7,20 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Water
-  m_Shader: {fileID: 4800000, guid: 98d919c98257bfe44a03941b3be16873, type: 3}
+  m_Name: "\u6F01\u7DB2"
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords:
+  m_ValidKeywords:
   - _ALPHAPREMULTIPLY_ON
-  m_LightmapFlags: 4
+  - _EMISSION
+  m_InvalidKeywords: []
+  m_LightmapFlags: 2
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 3000
+  stringTagMap:
+    RenderType: Transparent
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -37,10 +39,6 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _DistortionTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -64,57 +62,25 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _RippleTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BlueShift: 1.1
     - _BumpScale: 1
-    - _ColorIntensity: 0.7
-    - _ContrastReduction: 0.3
     - _Cutoff: 0.5
-    - _DepthFactor: 0.0023649682
     - _DetailNormalMapScale: 1
-    - _Distortion: 0.5
-    - _DistortionFrequency: 0.5
-    - _DistortionScale: 100
-    - _DistortionSpeed: 11
-    - _DistortionStrength: 0.0499527
     - _DstBlend: 10
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _GreenShift: 1.05
-    - _Intensity: 0.5
-    - _MaxViewDistance: 200
     - _Metallic: 0
     - _Mode: 3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _PollutionFactor: 0
-    - _PollutionScore: 0
-    - _RedShift: 0.95
-    - _RippleOffset: 0
-    - _RippleScale: 1
-    - _RippleSpeed: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Turbidity: 0.10002725
     - _UVSec: 0
-    - _VisibilityAtScore10: 20
-    - _WaveDistortion: 1
-    - _WaveFrequency: 12
-    - _WaveScale: 6
-    - _WaveSpeed: 0.6
-    - _WaveStrength: 0.065
     - _ZWrite: 0
     m_Colors:
-    - _ClearWaterColor: {r: 0.1, g: 0.3, b: 0.6, a: 0.7}
-    - _Color: {r: 0.5714593, g: 0.4885837, b: 0.12854074, a: 0.049974684}
-    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _PollutedWaterColor: {r: 0.101960786, g: 0.6, b: 0.15898547, a: 0.9}
-    - _WaterColor: {r: 0.15001363, g: 0.32000545, b: 0.5499864, a: 0.72000545}
+    - _Color: {r: 0, g: 1, b: 1, a: 0.39215687}
+    - _EmissionColor: {r: 0, g: 1024, b: 1024, a: 1}
   m_BuildTextureStacks: []

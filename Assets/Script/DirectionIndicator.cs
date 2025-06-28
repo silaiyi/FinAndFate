@@ -24,6 +24,8 @@ public class DirectionIndicator : MonoBehaviour
     private float pulseTime;
     [Header("Player Reference")]
     public Transform playerTransform; // 手动拖拽玩家对象到Inspector
+    
+    private bool _isActive = true; // 添加控制变量
 
     void Start()
     {
@@ -51,7 +53,31 @@ public class DirectionIndicator : MonoBehaviour
                 target = companion.transform;
             }
         }
+        
+        // 注册到LevelManager事件
+        LevelManager.OnLevelComplete += HandleLevelComplete;
     }
+    
+    void OnDestroy()
+    {
+        // 取消事件注册
+        LevelManager.OnLevelComplete -= HandleLevelComplete;
+    }
+    
+    // 新增：处理关卡完成事件
+    private void HandleLevelComplete(bool success)
+    {
+        _isActive = false; // 禁用指示器
+        SetIndicatorVisible(false); // 立即隐藏UI
+    }
+    
+    // 新增：设置指示器可见性
+    private void SetIndicatorVisible(bool visible)
+    {
+        if (indicatorArrow != null) indicatorArrow.gameObject.SetActive(visible);
+        if (distanceText != null) distanceText.gameObject.SetActive(visible);
+    }
+    
     void FindCompanionTarget()
     {
         if (LevelManager.Instance != null && LevelManager.Instance.companionInstance != null)
@@ -72,6 +98,9 @@ public class DirectionIndicator : MonoBehaviour
 
     void Update()
     {
+        // 如果指示器被禁用，直接返回
+        if (!_isActive) return;
+        
         if (target == null) 
         {
             // 如果目标丢失，尝试重新获取

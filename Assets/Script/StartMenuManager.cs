@@ -158,6 +158,12 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.DeleteKey("TrashScore");
         PlayerPrefs.DeleteKey("FishingScore");
         PlayerPrefs.DeleteKey("SewageScore");
+        
+        // 新增：删除关卡完成标记
+        PlayerPrefs.DeleteKey("Level1Completed");
+        PlayerPrefs.DeleteKey("Level2Completed");
+        PlayerPrefs.DeleteKey("Level1BestTime");
+        
         PlayerPrefs.Save();
         Debug.Log("Save data deleted! Questionnaire will be shown again.");
         
@@ -169,7 +175,7 @@ public class StartMenuManager : MonoBehaviour
     {
         // 获取关卡完成状态
         bool level1Completed = PlayerPrefs.GetInt("Level1Completed", 0) == 1;
-        bool level2Completed = PlayerPrefs.GetInt("Level2Completed", 0) == 1;
+        bool level2Completed = PlayerPrefs.GetInt("Level2Completed", 0) == 1; // 修正为读取Level2Completed
 
         // 更新关卡1状态文本（带空引用检查）
         if (level1StatusText != null)
@@ -196,7 +202,7 @@ public class StartMenuManager : MonoBehaviour
         // 设置关卡按钮状态
         level1Button.interactable = true;
         level2Button.interactable = level1Completed;
-        level3Button.interactable = level2Completed;
+        level3Button.interactable = level2Completed; // 使用level2Completed判断第三关解锁
     }
 
     public static void ApplyPollutionScores()
