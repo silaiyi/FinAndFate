@@ -83,7 +83,6 @@
     <Compile Include="Assets\Script\StencilBufferRenderer.cs" />
     <Compile Include="Assets\Script\CoralParticleController.cs" />
     <Compile Include="Assets\Script\Obstacle.cs" />
-    <Compile Include="Assets\Script\OutlineManager.cs" />
     <Compile Include="Assets\Script\SafeZoneController.cs" />
     <Compile Include="Assets\Script\CompanionBehavior.cs" />
     <Compile Include="Assets\Script\CoralPresenceController.cs" />

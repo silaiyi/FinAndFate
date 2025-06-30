@@ -194,10 +194,10 @@ MonoBehaviour:
   waypointThreshold: 2
   avoidanceRadius: 10
   avoidanceForce: 2
-  netRadius: 30
-  netHeight: 600
+  netRadius: 60
+  netHeight: 150
   damageInterval: 0.5
-  netOffset: 50
+  netOffset: 80
   netCheckSegments: 5
   netModel: {fileID: 646996979977354662}
   drawNetGizmos: 1

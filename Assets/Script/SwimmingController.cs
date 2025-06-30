@@ -195,6 +195,13 @@ public class SwimmingController : MonoBehaviour
     public SafeZoneController safeZone;
     private bool isInSafeZone = true;
     private float lastDamageTime;
+    #region Boost Settings
+    [Header("Boost Settings")]
+    public float boostMultiplier = 2.0f; // 加速倍数
+    public float healthConsumptionRate = 1.0f; // 每秒消耗的生命值
+    private bool isBoosting = false;
+    private float boostTimer = 0f;
+    #endregion
 
     /******************************************************************
      * INITIALIZATION & CORE GAMEPLAY LOOP
@@ -254,6 +261,7 @@ public class SwimmingController : MonoBehaviour
         LimitPlayerDepth();
         UpdateSardineSchool(); // 更新沙丁鱼群
         CheckSafeZoneStatus();
+        HandleBoost(); // 处理加速功能
     }
 
     void LateUpdate() => UpdateCamera();
@@ -310,85 +318,145 @@ public class SwimmingController : MonoBehaviour
             lastDamageTime = Time.time;
         }
     }
+    // 在类中添加新的HandleBoost方法
+/******************************************************************
+ * BOOST SYSTEM
+ ******************************************************************/
+private void HandleBoost()
+{
+    // 检测空格键按下
+    if (Input.GetKeyDown(KeyCode.Space) && currentHealth > 0)
+    {
+        isBoosting = true;
+        boostTimer = 0f;
+    }
+    
+    // 检测空格键释放
+    if (Input.GetKeyUp(KeyCode.Space))
+    {
+        isBoosting = false;
+    }
+    
+    // 处理加速状态
+    if (isBoosting)
+    {
+        // 更新计时器
+        boostTimer += Time.deltaTime;
+        
+        // 每秒消耗生命值
+        if (boostTimer >= 1f)
+        {
+            boostTimer -= 1f;
+            TakeDamage((int)healthConsumptionRate);
+        }
+        
+        // 生命值耗尽时停止加速
+        if (currentHealth <= 0)
+        {
+            isBoosting = false;
+        }
+    }
+}
 
     /******************************************************************
      * SARDINE SCHOOL SYSTEM
      ******************************************************************/
     private void InitializeSardineSchool()
-{
-    // 只在Level2場景激活沙丁魚群
-    if (SceneManager.GetActiveScene().name != "Level2") return;
-
-    // 清除現有沙丁魚
-    ClearSardines();
-
-    // 根據當前生命值計算沙丁魚數量
-    int sardineCount = CalculateSardineCount();
-
-    // 創建沙丁魚群
-    for (int i = 0; i < sardineCount; i++)
     {
-        Vector3 spawnPos = transform.position +
-                        Random.insideUnitSphere * sardineSpacing;
+        if (SceneManager.GetActiveScene().name != "Level2") return;
+        ClearSardines();
 
-        GameObject sardine = Instantiate(
-            sardinePrefab,
-            spawnPos,
-            Quaternion.identity
-        );
+        int sardineCount = CalculateSardineCount();
 
-        // 設置沙丁魚行為
-        SardineFollow followScript = sardine.GetComponent<SardineFollow>();
-        if (followScript != null)
+        for (int i = 0; i < sardineCount; i++)
         {
-            followScript.leader = transform;
-            followScript.formationRadius = sardineSpacing * 2f;
-            
-            // 分配不同的魚群位置類型
-            if (i < sardineCount * 0.4f) // 40% 側翼護衛
+            // 使用更分散的初始位置
+            float angle = i * (360f / sardineCount);
+            float distance = Random.Range(0.5f, 0.8f);
+            float heightOffset = Random.Range(-0.15f, 0.15f);
+
+            Vector3 spawnPos = transform.position +
+                            Quaternion.Euler(0, angle, 0) *
+                            (Vector3.forward * distance) +
+                            Vector3.up * heightOffset;
+
+            GameObject sardine = Instantiate(sardinePrefab, spawnPos, Quaternion.identity);
+
+            SardineFollow followScript = sardine.GetComponent<SardineFollow>();
+            if (followScript != null)
             {
-                followScript.formationType = SardineFollow.FormationType.Flank;
+                followScript.leader = transform;
+                followScript.followRadius = 0.6f;
+                followScript.followSpeed = 4f;
+                followScript.rotationSpeed = 4f;
+                followScript.positionRandomness = 0.1f;
+                // 移除 verticalOffset 设置
+                followScript.minSeparation = 0.2f;
+                // 移除 leadDistance 等设置
             }
-            else if (i < sardineCount * 0.7f) // 30% 後方跟隨
-            {
-                followScript.formationType = SardineFollow.FormationType.Trailing;
-            }
-            else // 30% 前方偵查
-            {
-                followScript.formationType = SardineFollow.FormationType.Scouting;
-            }
+
+            sardine.name = $"Sardine_{i}";
+            _sardines.Add(sardine);
         }
-
-        sardine.name = $"Sardine_{i}";
-        _sardines.Add(sardine);
     }
-}
 
-    // 更新沙丁鱼群
     private void UpdateSardineSchool()
     {
-        // 只在Level2场景更新沙丁鱼群
         if (SceneManager.GetActiveScene().name != "Level2") 
         {
-            // 如果不在Level2但还有沙丁鱼，清除它们
             if (_sardines.Count > 0) ClearSardines();
             return;
         }
 
-        // 计算当前应有的沙丁鱼数量
         int targetCount = CalculateSardineCount();
         
-        // 如果数量不匹配，重新初始化鱼群
-        if (_sardines.Count != targetCount)
+        // 删除多余的鱼
+        while (_sardines.Count > targetCount)
         {
-            InitializeSardineSchool();
+            GameObject sardine = _sardines[_sardines.Count - 1];
+            _sardines.RemoveAt(_sardines.Count - 1);
+            
+            SardineFollow follow = sardine.GetComponent<SardineFollow>();
+            if (follow != null) follow.RemoveSardine();
+            else Destroy(sardine);
+        }
+        
+        // 增加缺少的鱼
+        while (_sardines.Count < targetCount)
+        {
+            float distance = Random.Range(0.5f, 0.8f);
+            float angle = Random.Range(0f, 360f);
+            float heightOffset = Random.Range(-0.15f, 0.15f);
+            
+            Vector3 spawnPos = transform.position +
+                            Quaternion.Euler(0, angle, 0) * 
+                            (Vector3.forward * distance) +
+                            Vector3.up * heightOffset;
+
+            GameObject sardine = Instantiate(sardinePrefab, spawnPos, Quaternion.identity);
+            
+            SardineFollow followScript = sardine.GetComponent<SardineFollow>();
+            if (followScript != null)
+            {
+                followScript.leader = transform;
+                followScript.followRadius = 0.6f;
+                followScript.followSpeed = 4f;
+                followScript.rotationSpeed = 4f;
+                followScript.positionRandomness = 0.1f;
+                // 移除 verticalOffset 设置
+                followScript.minSeparation = 0.2f;
+                // 移除 leadDistance 等设置
+            }
+
+            sardine.name = $"Sardine_{_sardines.Count}";
+            _sardines.Add(sardine);
         }
     }
 
-    // 计算沙丁鱼数量
     private int CalculateSardineCount()
     {
-        return Mathf.Clamp(currentMaxHealth / 10, 1, maxSardines);
+        // 每5点生命值对应一条鱼，最小1条，最大maxSardines条
+        return Mathf.Clamp(Mathf.CeilToInt(currentHealth / 5f), 1, maxSardines);
     }
 
     // 清除所有沙丁鱼
@@ -396,7 +464,12 @@ public class SwimmingController : MonoBehaviour
     {
         foreach (var sardine in _sardines)
         {
-            if (sardine != null) Destroy(sardine);
+            if (sardine != null)
+            {
+                SardineFollow follow = sardine.GetComponent<SardineFollow>();
+                if (follow != null) follow.RemoveSardine();
+                else Destroy(sardine);
+            }
         }
         _sardines.Clear();
     }
@@ -480,9 +553,10 @@ public class SwimmingController : MonoBehaviour
      ******************************************************************/
     void HandleMovement()
     {
+        float currentSpeed = isBoosting ? moveSpeed * boostMultiplier : moveSpeed;
         if (knockbackVelocity.magnitude < 0.1f)
         {
-            Vector3 moveDirection = currentForwardDirection * moveSpeed * Time.fixedDeltaTime;
+            Vector3 moveDirection = currentForwardDirection * currentSpeed * Time.fixedDeltaTime;
             if (rb != null)
             {
                 rb.MovePosition(rb.position + moveDirection);
@@ -774,6 +848,7 @@ public class SwimmingController : MonoBehaviour
 
         if (healthSlider != null) healthSlider.value = currentHealth;
         UpdateHealthText();
+        UpdateSardineSchool();
 
         // 确保血量归零时必定触发死亡
         if (currentHealth <= 0)
@@ -790,7 +865,9 @@ public class SwimmingController : MonoBehaviour
 
         if (healthSlider != null) healthSlider.value = currentHealth;
         UpdateHealthText();
-        UpdateSardineSchool(); // 血量变化时更新鱼群
+        
+        // 確保調用沙丁魚群更新
+        UpdateSardineSchool();
     }
 
     public void ReduceMaxHealth(int amount)
@@ -1163,6 +1240,8 @@ public class SwimmingController : MonoBehaviour
         currentHideObstacle = null;
         knockbackVelocity = Vector3.zero;
         isInvulnerable = false; // 重置无敌状态
+        isBoosting = false;
+        boostTimer = 0f;
         
         // 重置安全区状态
         isInSafeZone = true;

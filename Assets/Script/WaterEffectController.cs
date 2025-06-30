@@ -95,17 +95,20 @@ public class WaterEffectController : MonoBehaviour
     {
         if (swimmingController == null) return 0f;
         
+        // 获取当前场景名称
+        string currentScene = SceneManager.GetActiveScene().name;
+        
         // 计算污染等级（0-1之间）
         int pollutionLevel = Mathf.Min(maxPollutionLevel, swimmingController.sewageScore);
+        float pollutionFactor = (float)pollutionLevel / maxPollutionLevel;
         
-        // 如果在危险区，直接使用最大污染等级
-        if (isInDangerZone)
+        // 如果不是危险区，污染因子减半（包括第一关和第三关）
+        if (!isInDangerZone || currentScene != "Level2")
         {
-            pollutionLevel = maxPollutionLevel;
+            pollutionFactor *= 0.5f; // 安全区污染效果减半
         }
         
-        // 计算雾效强度（0-1之间）
-        return (float)pollutionLevel / maxPollutionLevel;
+        return pollutionFactor;
     }
 
     // 更新雾效设置
@@ -131,7 +134,9 @@ public class WaterEffectController : MonoBehaviour
     void ApplyFogSettings(float pollutionFactor)
     {
         // 计算能见度（污染等级越高，能见度越低）
+        // 确保能见度不低于100f
         float visibility = Mathf.Lerp(maxVisibility, minVisibility, pollutionFactor);
+        visibility = Mathf.Max(visibility, minVisibility); // 强制最低能见度为100f
         
         // 设置雾效参数
         RenderSettings.fog = true;

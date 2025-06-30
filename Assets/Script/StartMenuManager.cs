@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Collections.Generic; // 添加这个命名空间
 
 public class StartMenuManager : MonoBehaviour
 {
@@ -159,10 +160,13 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.DeleteKey("FishingScore");
         PlayerPrefs.DeleteKey("SewageScore");
         
-        // 新增：删除关卡完成标记
+        // 删除关卡完成标记
         PlayerPrefs.DeleteKey("Level1Completed");
         PlayerPrefs.DeleteKey("Level2Completed");
         PlayerPrefs.DeleteKey("Level1BestTime");
+        
+        // 删除玩家回答记录
+        PlayerPrefs.DeleteKey("PlayerAnswerRecords");
         
         PlayerPrefs.Save();
         Debug.Log("Save data deleted! Questionnaire will be shown again.");
@@ -175,15 +179,15 @@ public class StartMenuManager : MonoBehaviour
     {
         // 获取关卡完成状态
         bool level1Completed = PlayerPrefs.GetInt("Level1Completed", 0) == 1;
-        bool level2Completed = PlayerPrefs.GetInt("Level2Completed", 0) == 1; // 修正为读取Level2Completed
+        bool level2Completed = PlayerPrefs.GetInt("Level2Completed", 0) == 1;
 
-        // 更新关卡1状态文本（带空引用检查）
+        // 更新关卡1状态文本
         if (level1StatusText != null)
         {
             level1StatusText.text = level1Completed ? "已完成" : "未完成";
         }
 
-        // 更新关卡1最佳时间文本（带空引用检查）
+        // 更新关卡1最佳时间文本
         if (level1BestTimeText != null)
         {
             if (level1Completed)
@@ -202,7 +206,28 @@ public class StartMenuManager : MonoBehaviour
         // 设置关卡按钮状态
         level1Button.interactable = true;
         level2Button.interactable = level1Completed;
-        level3Button.interactable = level2Completed; // 使用level2Completed判断第三关解锁
+        level3Button.interactable = level2Completed;
+    }
+
+    // =====================
+    // 回答记录访问方法
+    // =====================
+    public static List<QuestionnaireManager.PlayerAnswerRecord> GetPlayerAnswerRecords()
+    {
+        if (PlayerPrefs.HasKey("PlayerAnswerRecords"))
+        {
+            string json = PlayerPrefs.GetString("PlayerAnswerRecords");
+            AnswerRecordWrapper wrapper = JsonUtility.FromJson<AnswerRecordWrapper>(json);
+            return wrapper.records;
+        }
+        return new List<QuestionnaireManager.PlayerAnswerRecord>();
+    }
+    
+    // JSON反序列化包装类
+    [System.Serializable]
+    private class AnswerRecordWrapper
+    {
+        public List<QuestionnaireManager.PlayerAnswerRecord> records;
     }
 
     public static void ApplyPollutionScores()

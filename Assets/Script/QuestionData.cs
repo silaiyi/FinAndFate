@@ -6,6 +6,7 @@ using System;
 [Serializable]
 public class QuestionData
 {
+    public string questionId; // 新增：唯一问题标识符
     public PollutionType pollutionType;
     
     // 英文问题文本

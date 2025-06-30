@@ -144,11 +144,6 @@ public class LevelManager : MonoBehaviour
             companionInstance = Instantiate(companionPrefab, companionSpawnPoint.position, companionSpawnPoint.rotation);
             companionInstance.tag = "Companion";
             
-            // 添加高亮效果
-            if (OutlineManager.Instance != null)
-            {
-                OutlineManager.Instance.ApplyOutline(companionInstance, Color.green);
-            }
         }
     }
 

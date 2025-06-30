@@ -86,20 +86,14 @@ public class PredatorController : MonoBehaviour
         patrolDirection = 1; // 初始為正向移動
 
         Debug.Log("Predator initialized. Starting patrol.");
-        if (OutlineManager.Instance != null)
-        {
-            OutlineManager.Instance.ApplyOutline(gameObject, OutlineManager.Instance.predatorOutlineColor);
-        }
+        
     }
     
     void OnDestroy()
     {
         // 取消订阅
         SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
-        if (OutlineManager.Instance != null)
-        {
-            OutlineManager.Instance.RemoveOutline(gameObject);
-        }
+        
     }
     
     // 修改事件處理

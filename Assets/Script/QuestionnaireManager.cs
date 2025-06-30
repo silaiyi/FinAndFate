@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic; // 添加这个命名空间
 
 public class QuestionnaireManager : MonoBehaviour
 {
@@ -17,6 +17,15 @@ public class QuestionnaireManager : MonoBehaviour
     private List<QuestionData> currentQuestions = new List<QuestionData>();
     private int currentQuestionIndex = 0;
     private int[] categoryScores = new int[4];
+    
+    // 玩家回答记录
+    [System.Serializable]
+    public class PlayerAnswerRecord
+    {
+        public string questionId;
+        public int selectedOptionIndex;
+    }
+    private List<PlayerAnswerRecord> playerAnswers = new List<PlayerAnswerRecord>();
     
     // 使用PlayerPrefs持久化存储语言设置
     public static bool isChinese {
@@ -38,6 +47,7 @@ public class QuestionnaireManager : MonoBehaviour
     {
         currentQuestionIndex = 0;
         categoryScores = new int[4];
+        playerAnswers = new List<PlayerAnswerRecord>(); // 初始化回答记录
         
         var groupedQuestions = allQuestions
             .GroupBy(q => q.pollutionType)
@@ -109,6 +119,12 @@ public class QuestionnaireManager : MonoBehaviour
     {
         QuestionData currentQuestion = currentQuestions[currentQuestionIndex];
 
+        // 记录玩家回答
+        playerAnswers.Add(new PlayerAnswerRecord {
+            questionId = currentQuestion.questionId,
+            selectedOptionIndex = optionIndex
+        });
+
         if (optionIndex < currentQuestion.options.Length)
         {
             int score = currentQuestion.options[optionIndex].scoreValue;
@@ -133,12 +149,33 @@ public class QuestionnaireManager : MonoBehaviour
         PlayerPrefs.SetInt("TrashScore", categoryScores[1]);
         PlayerPrefs.SetInt("FishingScore", categoryScores[2]);
         PlayerPrefs.SetInt("SewageScore", categoryScores[3]);
-        PlayerPrefs.Save();
         
+        // 保存回答记录
+        SaveAnswerRecords();
+        
+        PlayerPrefs.Save();
         questionnairePanel.SetActive(false);
         
         // 显示选关界面
         FindObjectOfType<StartMenuManager>()?.ShowLevelSelection();
+    }
+    
+    // 保存回答记录到PlayerPrefs
+    private void SaveAnswerRecords()
+    {
+        AnswerRecordWrapper wrapper = new AnswerRecordWrapper {
+            records = playerAnswers
+        };
+        string json = JsonUtility.ToJson(wrapper);
+        PlayerPrefs.SetString("PlayerAnswerRecords", json);
+        Debug.Log("Saved player answers: " + json);
+    }
+    
+    // JSON序列化包装类
+    [System.Serializable]
+    private class AnswerRecordWrapper
+    {
+        public List<PlayerAnswerRecord> records;
     }
 
     public void CheckAndShowQuestionnaire()

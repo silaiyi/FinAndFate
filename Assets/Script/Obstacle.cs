@@ -80,14 +80,6 @@ public class Obstacle : MonoBehaviour
             nextDisappearanceCheckTime = Time.time + disappearanceCheckInterval;
         }
 
-        if (OutlineManager.Instance != null)
-        {
-            Color outlineColor = obstacleType == ObstacleType.Coral ?
-                OutlineManager.Instance.coralOutlineColor :
-                OutlineManager.Instance.rockOutlineColor;
-
-            OutlineManager.Instance.ApplyOutline(gameObject, outlineColor);
-        }
         disappearanceCheckInterval = Random.Range(0f, 1f);
         nextDisappearanceCheckTime = Time.time + disappearanceCheckInterval;
     }
@@ -409,9 +401,6 @@ public class Obstacle : MonoBehaviour
     
     void OnDestroy()
     {
-        if (OutlineManager.Instance != null)
-        {
-            OutlineManager.Instance.RemoveOutline(gameObject);
-        }
+        
     }
 }
