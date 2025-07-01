@@ -6,39 +6,36 @@ public class FishingBoatController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public List<Transform> pathPoints = new List<Transform>();
-    public float moveSpeed = 8f;
-    public float rotationSpeed = 2f;
+    public float moveSpeed = 75f; // 基础速度提高到75
+    public float rotationSpeed = 5f; // 旋转速度提高以适应新速度
     public float waypointThreshold = 2f;
-    public float avoidanceRadius = 10f; // 避讓其他船的半徑
-    public float avoidanceForce = 2f; // 避讓力度
+    public float avoidanceRadius = 30f; // 避让半径增大到30
+    public float avoidanceForce = 5f; // 避让力度增大到5
 
     [Header("Fishing Net Settings")]
     public float netRadius = 5f;
     public float netHeight = 10f;
     public float damageInterval = 0.5f;
     public float netOffset = 2.5f;
-    public int netCheckSegments = 5; // 新增：渔网高度方向检测分段数
+    public int netCheckSegments = 5;
     
-    [Header("Net Model Reference")] // 新增：实体模型引用
-    public GameObject netModel; // 拖拽渔网模型到这个字段
+    [Header("Net Model Reference")]
+    public GameObject netModel;
     
     [Header("Debug Settings")]
-    public bool drawNetGizmos = true; // 控制是否绘制调试图形
+    public bool drawNetGizmos = true;
 
     private int currentPointIndex = 0;
     private float nextDamageTime;
     private Collider[] hitColliders = new Collider[20];
-    private Vector3 lastNetCenter; // 存储最后计算的网中心位置
-    private Vector3 avoidanceVector; // 避讓方向
-    [Header("Fishing Net Settings")]
-    public float netDepthOffset = 100f; // 新增：渔网向下偏移量
-
+    private Vector3 lastNetCenter;
+    private Vector3 avoidanceVector;
+    public float netDepthOffset = 100f;
 
     void Start()
     {
         if (pathPoints.Count == 0)
         {
-            // 從場景中獲取FishRoad點
             GameObject[] roadObjects = GameObject.FindGameObjectsWithTag("FishRoad");
             pathPoints = roadObjects.Select(go => go.transform).ToList();
             
@@ -49,10 +46,11 @@ public class FishingBoatController : MonoBehaviour
             }
         }
         
-        // 隨機選擇起始點
         currentPointIndex = Random.Range(0, pathPoints.Count);
         
-        // 初始化渔网模型位置
+        // 添加速度随机变化 (±25)
+        moveSpeed += Random.Range(-25f, 25f);
+        
         if (netModel != null)
         {
             UpdateNetModelPosition();
@@ -67,25 +65,19 @@ public class FishingBoatController : MonoBehaviour
         MoveAlongPath();
         CheckForTargets();
         
-        // 更新網中心位置
         lastNetCenter = transform.position - transform.forward * netOffset;
         
-        // 更新渔网模型位置
         if (netModel != null)
         {
             UpdateNetModelPosition();
         }
     }
     
-    // 新增：更新渔网模型位置和大小
     void UpdateNetModelPosition()
     {
-        // 设置位置（船尾偏移）
         netModel.transform.localPosition = new Vector3(0, -netDepthOffset, -netOffset);
-        
-        // 设置缩放（根据半径和高度）
         netModel.transform.localScale = new Vector3(
-            netRadius * 2,  // 直径=半径*2
+            netRadius * 2,
             netHeight,
             netRadius * 2
         );
@@ -98,7 +90,7 @@ public class FishingBoatController : MonoBehaviour
         if (FishBoatManager.Instance == null) return;
         
         List<Transform> otherBoats = FishBoatManager.Instance.GetAllBoatTransforms();
-        otherBoats.Remove(transform); // 移除自己
+        otherBoats.Remove(transform);
         
         foreach (Transform boat in otherBoats)
         {
@@ -107,7 +99,6 @@ public class FishingBoatController : MonoBehaviour
             
             if (distance < avoidanceRadius)
             {
-                // 距離越近，避讓力度越大
                 float force = Mathf.Clamp01(1 - distance / avoidanceRadius) * avoidanceForce;
                 avoidanceVector += toOther.normalized * force;
             }
@@ -118,9 +109,11 @@ public class FishingBoatController : MonoBehaviour
     {
         Vector3 targetPosition = pathPoints[currentPointIndex].position;
         Vector3 moveDirection = (targetPosition - transform.position).normalized;
-        moveDirection.y = 0; // 保持水平移動
+        moveDirection.y = 0;
         
-        // 應用避讓向量
+        // 动态旋转速度（基于当前速度）
+        float dynamicRotationSpeed = rotationSpeed * (moveSpeed / 75f);
+        
         if (avoidanceVector.magnitude > 0.1f)
         {
             moveDirection += avoidanceVector.normalized * 0.3f;
@@ -133,15 +126,17 @@ public class FishingBoatController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 targetRotation,
-                rotationSpeed * Time.deltaTime
+                dynamicRotationSpeed * Time.deltaTime
             );
         }
 
         transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime, Space.Self);
 
-        if (Vector3.Distance(transform.position, targetPosition) < waypointThreshold)
+        // 动态路径点阈值（基于速度）
+        float dynamicThreshold = Mathf.Max(waypointThreshold, moveSpeed * 0.1f);
+        
+        if (Vector3.Distance(transform.position, targetPosition) < dynamicThreshold)
         {
-            // 隨機選擇下一個點，避免立即返回
             int newIndex;
             do {
                 newIndex = Random.Range(0, pathPoints.Count);
@@ -178,10 +173,9 @@ public class FishingBoatController : MonoBehaviour
                 if (processedTargets.Contains(target)) continue;
                 processedTargets.Add(target);
 
-                // 添加对NPCFish标签的检测
                 if (target.CompareTag("Player") || 
                     target.CompareTag("Trash") || 
-                    target.CompareTag("NPCFish")) // 新增NPC鱼类检测
+                    target.CompareTag("NPCFish"))
                 {
                     DestroyTarget(target);
                 }
@@ -189,22 +183,6 @@ public class FishingBoatController : MonoBehaviour
         }
 
         nextDamageTime = Time.time + damageInterval;
-    }
-    void DestroyCoralImmediately(GameObject coral)
-    {
-        Obstacle obstacle = coral.GetComponent<Obstacle>();
-        if (obstacle != null)
-        {
-            // 直接摧毀珊瑚而不播放效果
-            Destroy(coral);
-            
-            // 或者使用珊瑚的摧毀方法（如果希望有效果）
-            // obstacle.DestroyObstacle();
-        }
-        else
-        {
-            Destroy(coral);
-        }
     }
 
     void DestroyTarget(GameObject target)
@@ -217,13 +195,11 @@ public class FishingBoatController : MonoBehaviour
                 player.InstantDeath();
             }
         }
-        // 新增：NPC鱼类秒杀处理
         else if (target.CompareTag("NPCFish"))
         {
             FishNPC fish = target.GetComponent<FishNPC>();
             if (fish != null)
             {
-                // 可以在这里添加鱼死亡效果
                 Destroy(target);
             }
             else
@@ -231,7 +207,7 @@ public class FishingBoatController : MonoBehaviour
                 Destroy(target);
             }
         }
-        else // 垃圾和其他对象
+        else
         {
             Destroy(target);
         }
@@ -243,7 +219,6 @@ public class FishingBoatController : MonoBehaviour
 
         Gizmos.color = Color.red;
 
-        // 繪製路徑點
         for (int i = 0; i < pathPoints.Count; i++)
         {
             if (pathPoints[i] == null) continue;
@@ -255,14 +230,11 @@ public class FishingBoatController : MonoBehaviour
             }
         }
 
-        // 繪製漁網範圍
         Vector3 netCenter = transform.position - transform.forward * netOffset - Vector3.up * netDepthOffset;
 
-        // 繪製頂部和底部的圓
         DrawGizmoCircle(netCenter - Vector3.up * netHeight * 0.5f, netRadius);
         DrawGizmoCircle(netCenter + Vector3.up * netHeight * 0.5f, netRadius);
 
-        // 繪製側面連接線
         for (int i = 0; i < 8; i++)
         {
             float angle = i * Mathf.PI * 2 / 8;
@@ -273,22 +245,19 @@ public class FishingBoatController : MonoBehaviour
             );
         }
 
-        // 繪製避讓向量
         if (avoidanceVector.magnitude > 0.1f)
         {
             Gizmos.color = Color.yellow;
             Gizmos.DrawLine(transform.position, transform.position + avoidanceVector * 5f);
         }
-        Gizmos.color = new Color(0, 1, 1, 0.5f); // 青色半透明
-        
-        // 绘制光柱的实际圆柱体
+        Gizmos.color = new Color(0, 1, 1, 0.5f);
         DrawGizmoCylinder(netCenter, netRadius, netHeight);
     }
+    
     void DrawGizmoCylinder(Vector3 center, float radius, float height)
     {
         int segments = 16;
         
-        // 绘制侧面
         for (int i = 0; i < segments; i++)
         {
             float angle1 = i * Mathf.PI * 2 / segments;
@@ -318,16 +287,12 @@ public class FishingBoatController : MonoBehaviour
                 Mathf.Sin(angle2) * radius
             );
             
-            // 底部到顶部
             Gizmos.DrawLine(bottom1, top1);
-            // 底部环
             Gizmos.DrawLine(bottom1, bottom2);
-            // 顶部环
             Gizmos.DrawLine(top1, top2);
         }
     }
     
-    // 在Gizmos中绘制圆形
     void DrawGizmoCircle(Vector3 center, float radius)
     {
         int segments = 16;
