@@ -239,7 +239,7 @@ MonoBehaviour:
   netRadius: 60
   netHeight: 150
   damageInterval: 0.5
-  netOffset: 80
+  netOffset: 0
   netCheckSegments: 5
   netDepthOffset: 100
   netModel: {fileID: 646996979977354662}

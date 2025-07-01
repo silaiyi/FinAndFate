@@ -103,21 +103,29 @@ public class PredatorController : MonoBehaviour
             rb.useGravity = false;
             rb.isKinematic = false;
         }
-        
+
         SwimmingController.OnPollutionChanged += HandlePollutionChanged;
         patrolDirection = 1;
-        
+
         // 初始化生命值
         currentHealth = maxHealth;
-        
+
         // 保存原始速度
         originalChaseSpeed = chaseSpeed;
         originalPatrolSpeed = patrolSpeed;
+        if (EnemyIndicatorManager.Instance != null)
+        {
+            EnemyIndicatorManager.Instance.RegisterEnemy(transform);
+        }
     }
-    
+
     void OnDestroy()
     {
         SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
+        if (EnemyIndicatorManager.Instance != null)
+        {
+            EnemyIndicatorManager.Instance.UnregisterEnemy(transform);
+        }
     }
     
     void HandlePollutionChanged(SwimmingController.PollutionScores newScores)

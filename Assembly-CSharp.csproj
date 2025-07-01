@@ -88,6 +88,7 @@
     <Compile Include="Assets\Script\Obstacle.cs" />
     <Compile Include="Assets\Script\SafeZoneController.cs" />
     <Compile Include="Assets\Script\FishNPC.cs" />
+    <Compile Include="Assets\Script\EnemyIndicatorManager.cs" />
     <Compile Include="Assets\Script\CompanionBehavior.cs" />
     <Compile Include="Assets\Script\CoralPresenceController.cs" />
   </ItemGroup>

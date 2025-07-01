@@ -130,8 +130,8 @@ public class FishBoatManager : MonoBehaviour
         Vector3 playerPos = SwimmingController.Instance.transform.position;
         Vector3 spawnPosition;
         int attempts = 0;
-        const float minDistance = 50f;
-        const float maxDistance = 70f;
+        const float minDistance = 100f;
+        const float maxDistance = 150f;
         
         do
         {

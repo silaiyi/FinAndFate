@@ -68,7 +68,7 @@ public class TrashBehavior : MonoBehaviour
     {
         if (!IsWithinValidHeight())
         {
-            Debug.Log($"Destroying trash at invalid height: {transform.position.y}");
+            //Debug.Log($"Destroying trash at invalid height: {transform.position.y}");
             Destroy(gameObject);
         }
     }

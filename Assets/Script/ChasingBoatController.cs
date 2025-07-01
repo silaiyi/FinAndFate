@@ -27,7 +27,13 @@ public class ChasingBoatController : MonoBehaviour
     private float nextDamageTime;
     private Collider[] hitColliders = new Collider[20];
     private Vector3 lastNetCenter;
-
+    void Start()
+    {
+        if (EnemyIndicatorManager.Instance != null)
+        {
+            EnemyIndicatorManager.Instance.RegisterEnemy(transform);
+        }
+    }
     void Update()
     {
         if (playerTarget == null)
@@ -80,6 +86,13 @@ public class ChasingBoatController : MonoBehaviour
         
         // 檢查漁網範圍內的目標
         CheckForTargets();
+    }
+    void OnDestroy()
+    {
+        if (EnemyIndicatorManager.Instance != null)
+        {
+            EnemyIndicatorManager.Instance.UnregisterEnemy(transform);
+        }
     }
     
     // 更新渔网模型位置和大小
