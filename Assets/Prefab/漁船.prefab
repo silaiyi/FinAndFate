@@ -189,7 +189,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  moveSpeed: 8
+  moveSpeed: 5
   rotationSpeed: 10
   waypointThreshold: 2
   avoidanceRadius: 10
