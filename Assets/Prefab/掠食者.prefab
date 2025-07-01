@@ -54,7 +54,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   patrolSpeed: 50
-  chaseSpeed: 9.5
+  chaseSpeed: 5.5
   rotationSpeed: 50
   waypointThreshold: 2
   verticalChaseFactor: 10
@@ -74,6 +74,12 @@ MonoBehaviour:
   drawPathGizmos: 1
   pathColor: {r: 0, g: 1, b: 1, a: 1}
   pingPongMovement: 1
+  npcDetectionRadius: 20
+  npcPriorityMultiplier: 1.5
+  maxHealth: 3000
+  poisonDuration: 10
+  poisonDamageInterval: 1
+  poisonedSpeedMultiplier: 0.5
 --- !u!65 &818055524261486300
 BoxCollider:
   m_ObjectHideFlags: 0

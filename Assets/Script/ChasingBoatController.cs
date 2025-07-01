@@ -1,83 +1,88 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
-public class FishingBoatController : MonoBehaviour
+public class ChasingBoatController : MonoBehaviour
 {
-    [Header("Movement Settings")]
-    public List<Transform> pathPoints = new List<Transform>();
-    public float moveSpeed = 8f;
-    public float rotationSpeed = 2f;
-    public float waypointThreshold = 2f;
-    public float avoidanceRadius = 10f; // 避讓其他船的半徑
-    public float avoidanceForce = 2f; // 避讓力度
-
-    [Header("Fishing Net Settings")]
+    [Header("Chasing Settings")]
+    public Transform playerTarget;
+    public float moveSpeed = 10f;
+    public float rotationSpeed = 5f;
+    public float chaseDistance = 30f;
+    public float attackDistance = 5f;
+    
+    [Header("Net Settings")]
     public float netRadius = 5f;
     public float netHeight = 10f;
     public float damageInterval = 0.5f;
     public float netOffset = 2.5f;
-    public int netCheckSegments = 5; // 新增：渔网高度方向检测分段数
+    public int netCheckSegments = 5;
+    public float netDepthOffset = 100f;
     
-    [Header("Net Model Reference")] // 新增：实体模型引用
-    public GameObject netModel; // 拖拽渔网模型到这个字段
+    [Header("Net Model Reference")]
+    public GameObject netModel;
     
     [Header("Debug Settings")]
-    public bool drawNetGizmos = true; // 控制是否绘制调试图形
-
-    private int currentPointIndex = 0;
+    public bool drawNetGizmos = true;
+    
     private float nextDamageTime;
     private Collider[] hitColliders = new Collider[20];
-    private Vector3 lastNetCenter; // 存储最后计算的网中心位置
-    private Vector3 avoidanceVector; // 避讓方向
-    [Header("Fishing Net Settings")]
-    public float netDepthOffset = 100f; // 新增：渔网向下偏移量
-
-
-    void Start()
-    {
-        if (pathPoints.Count == 0)
-        {
-            // 從場景中獲取FishRoad點
-            GameObject[] roadObjects = GameObject.FindGameObjectsWithTag("FishRoad");
-            pathPoints = roadObjects.Select(go => go.transform).ToList();
-            
-            if (pathPoints.Count == 0)
-            {
-                Debug.LogError("No path points assigned and no FishRoad points found!");
-                enabled = false;
-            }
-        }
-        
-        // 隨機選擇起始點
-        currentPointIndex = Random.Range(0, pathPoints.Count);
-        
-        // 初始化渔网模型位置
-        if (netModel != null)
-        {
-            UpdateNetModelPosition();
-        }
-    }
+    private Vector3 lastNetCenter;
 
     void Update()
     {
-        if (pathPoints.Count == 0) return;
+        if (playerTarget == null)
+        {
+            // 尝试重新获取玩家引用
+            if (SwimmingController.Instance != null)
+            {
+                playerTarget = SwimmingController.Instance.transform;
+            }
+            else
+            {
+                Debug.LogWarning("Player target is null!");
+                return;
+            }
+        }
 
-        CalculateAvoidance();
-        MoveAlongPath();
-        CheckForTargets();
-        
+        // 获取玩家位置但保持高度为0
+        Vector3 targetPosition = new Vector3(
+            playerTarget.position.x,
+            0, // 强制高度为0
+            playerTarget.position.z
+        );
+
+        float distance = Vector3.Distance(transform.position, targetPosition);
+
+        // 追逐邏輯 - 移除距离限制
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        direction.y = 0; // 确保只在水平面移动
+
+        // 旋轉朝向玩家
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+
+        // 移動 (只在水平面移动)
+        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime, Space.Self);
+
+        // 强制设置高度为0
+        Vector3 pos = transform.position;
+        pos.y = 0;
+        transform.position = pos;
+
         // 更新網中心位置
-        lastNetCenter = transform.position - transform.forward * netOffset;
+        lastNetCenter = transform.position - transform.forward * netOffset - Vector3.up * netDepthOffset;
         
         // 更新渔网模型位置
         if (netModel != null)
         {
             UpdateNetModelPosition();
         }
+        
+        // 檢查漁網範圍內的目標
+        CheckForTargets();
     }
     
-    // 新增：更新渔网模型位置和大小
+    // 更新渔网模型位置和大小
     void UpdateNetModelPosition()
     {
         // 设置位置（船尾偏移）
@@ -89,66 +94,6 @@ public class FishingBoatController : MonoBehaviour
             netHeight,
             netRadius * 2
         );
-    }
-
-    void CalculateAvoidance()
-    {
-        avoidanceVector = Vector3.zero;
-        
-        if (FishBoatManager.Instance == null) return;
-        
-        List<Transform> otherBoats = FishBoatManager.Instance.GetAllBoatTransforms();
-        otherBoats.Remove(transform); // 移除自己
-        
-        foreach (Transform boat in otherBoats)
-        {
-            Vector3 toOther = transform.position - boat.position;
-            float distance = toOther.magnitude;
-            
-            if (distance < avoidanceRadius)
-            {
-                // 距離越近，避讓力度越大
-                float force = Mathf.Clamp01(1 - distance / avoidanceRadius) * avoidanceForce;
-                avoidanceVector += toOther.normalized * force;
-            }
-        }
-    }
-
-    void MoveAlongPath()
-    {
-        Vector3 targetPosition = pathPoints[currentPointIndex].position;
-        Vector3 moveDirection = (targetPosition - transform.position).normalized;
-        moveDirection.y = 0; // 保持水平移動
-        
-        // 應用避讓向量
-        if (avoidanceVector.magnitude > 0.1f)
-        {
-            moveDirection += avoidanceVector.normalized * 0.3f;
-            moveDirection.Normalize();
-        }
-
-        if (moveDirection != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
-        }
-
-        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime, Space.Self);
-
-        if (Vector3.Distance(transform.position, targetPosition) < waypointThreshold)
-        {
-            // 隨機選擇下一個點，避免立即返回
-            int newIndex;
-            do {
-                newIndex = Random.Range(0, pathPoints.Count);
-            } while (newIndex == currentPointIndex && pathPoints.Count > 1);
-            
-            currentPointIndex = newIndex;
-        }
     }
 
     void CheckForTargets()
@@ -181,7 +126,7 @@ public class FishingBoatController : MonoBehaviour
                 // 添加对NPCFish标签的检测
                 if (target.CompareTag("Player") || 
                     target.CompareTag("Trash") || 
-                    target.CompareTag("NPCFish")) // 新增NPC鱼类检测
+                    target.CompareTag("NPCFish"))
                 {
                     DestroyTarget(target);
                 }
@@ -189,22 +134,6 @@ public class FishingBoatController : MonoBehaviour
         }
 
         nextDamageTime = Time.time + damageInterval;
-    }
-    void DestroyCoralImmediately(GameObject coral)
-    {
-        Obstacle obstacle = coral.GetComponent<Obstacle>();
-        if (obstacle != null)
-        {
-            // 直接摧毀珊瑚而不播放效果
-            Destroy(coral);
-            
-            // 或者使用珊瑚的摧毀方法（如果希望有效果）
-            // obstacle.DestroyObstacle();
-        }
-        else
-        {
-            Destroy(coral);
-        }
     }
 
     void DestroyTarget(GameObject target)
@@ -243,18 +172,6 @@ public class FishingBoatController : MonoBehaviour
 
         Gizmos.color = Color.red;
 
-        // 繪製路徑點
-        for (int i = 0; i < pathPoints.Count; i++)
-        {
-            if (pathPoints[i] == null) continue;
-
-            Gizmos.DrawSphere(pathPoints[i].position, 1f);
-            if (i < pathPoints.Count - 1 && pathPoints[i + 1] != null)
-            {
-                Gizmos.DrawLine(pathPoints[i].position, pathPoints[i + 1].position);
-            }
-        }
-
         // 繪製漁網範圍
         Vector3 netCenter = transform.position - transform.forward * netOffset - Vector3.up * netDepthOffset;
 
@@ -273,17 +190,10 @@ public class FishingBoatController : MonoBehaviour
             );
         }
 
-        // 繪製避讓向量
-        if (avoidanceVector.magnitude > 0.1f)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(transform.position, transform.position + avoidanceVector * 5f);
-        }
-        Gizmos.color = new Color(0, 1, 1, 0.5f); // 青色半透明
-        
         // 绘制光柱的实际圆柱体
         DrawGizmoCylinder(netCenter, netRadius, netHeight);
     }
+    
     void DrawGizmoCylinder(Vector3 center, float radius, float height)
     {
         int segments = 16;

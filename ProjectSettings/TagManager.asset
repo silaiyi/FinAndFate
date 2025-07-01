@@ -11,6 +11,8 @@ TagManager:
   - Companion
   - BleachedCoral
   - FishRoad
+  - FishSwim
+  - NPCFish
   layers:
   - Default
   - TransparentFX

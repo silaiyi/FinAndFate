@@ -401,7 +401,7 @@ GameObject:
   - component: {fileID: 32113514}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (15)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -630,7 +630,7 @@ GameObject:
   - component: {fileID: 122881771}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (33)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1209,7 +1209,7 @@ GameObject:
   - component: {fileID: 194012760}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (20)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1500,7 +1500,7 @@ GameObject:
   - component: {fileID: 228960392}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (7)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1667,7 +1667,7 @@ GameObject:
   - component: {fileID: 230644724}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (39)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1832,7 +1832,7 @@ GameObject:
   - component: {fileID: 237484506}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (29)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1937,7 +1937,7 @@ GameObject:
   - component: {fileID: 239875334}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (10)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2042,7 +2042,7 @@ GameObject:
   - component: {fileID: 259035799}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (8)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2226,7 +2226,7 @@ GameObject:
   - component: {fileID: 264177356}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (16)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2399,7 +2399,7 @@ GameObject:
   - component: {fileID: 290771927}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (36)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2504,7 +2504,7 @@ GameObject:
   - component: {fileID: 299667782}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (30)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2609,7 +2609,7 @@ GameObject:
   - component: {fileID: 312712988}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (19)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3024,7 +3024,7 @@ GameObject:
   - component: {fileID: 359078878}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (46)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3377,7 +3377,7 @@ GameObject:
   - component: {fileID: 435385475}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (11)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3846,7 +3846,7 @@ GameObject:
   - component: {fileID: 494357938}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (44)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4182,7 +4182,7 @@ GameObject:
   - component: {fileID: 550088456}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (45)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4897,7 +4897,7 @@ GameObject:
   - component: {fileID: 633464965}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (21)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5829,7 +5829,7 @@ GameObject:
   - component: {fileID: 816756655}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (32)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6258,7 +6258,7 @@ GameObject:
   - component: {fileID: 861119882}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (24)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6611,7 +6611,7 @@ GameObject:
   - component: {fileID: 901289084}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (27)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6716,7 +6716,7 @@ GameObject:
   - component: {fileID: 909646570}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7131,7 +7131,7 @@ GameObject:
   - component: {fileID: 1059919819}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (13)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7298,7 +7298,7 @@ GameObject:
   - component: {fileID: 1075537210}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (26)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7589,7 +7589,7 @@ GameObject:
   - component: {fileID: 1111092446}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (23)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7880,7 +7880,7 @@ GameObject:
   - component: {fileID: 1153065555}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (14)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8080,6 +8080,10 @@ PrefabInstance:
       value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
+      propertyPath: maxTrashInView
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
       propertyPath: spawnDistanceMax
       value: 30
       objectReference: {fileID: 0}
@@ -8100,8 +8104,16 @@ PrefabInstance:
       value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
+      propertyPath: pollutionAcceleration
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
+      propertyPath: pollutionIncreaseRate
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
       propertyPath: pollutionUpdateInterval
-      value: 30
+      value: 300000
       objectReference: {fileID: 0}
     - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
       propertyPath: foodVarieties.Array.size
@@ -8224,7 +8236,7 @@ GameObject:
   - component: {fileID: 1183438236}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (41)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8329,7 +8341,7 @@ GameObject:
   - component: {fileID: 1202433370}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (2)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -8496,7 +8508,7 @@ GameObject:
   - component: {fileID: 1221844914}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (12)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9142,7 +9154,7 @@ GameObject:
   - component: {fileID: 1265722480}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (28)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9450,7 +9462,7 @@ GameObject:
   - component: {fileID: 1296465446}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (31)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9865,7 +9877,7 @@ GameObject:
   - component: {fileID: 1349523033}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (37)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10628,7 +10640,7 @@ GameObject:
   - component: {fileID: 1465129171}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (3)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10733,7 +10745,7 @@ GameObject:
   - component: {fileID: 1472291050}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (34)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -10900,7 +10912,7 @@ GameObject:
   - component: {fileID: 1482501573}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (38)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11005,7 +11017,7 @@ GameObject:
   - component: {fileID: 1493760093}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (9)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11200,7 +11212,7 @@ GameObject:
   - component: {fileID: 1502634760}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (22)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11491,7 +11503,7 @@ GameObject:
   - component: {fileID: 1588687048}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (42)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11782,7 +11794,7 @@ GameObject:
   - component: {fileID: 1630800440}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (40)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11949,7 +11961,7 @@ GameObject:
   - component: {fileID: 1647204389}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (6)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12340,7 +12352,7 @@ GameObject:
   - component: {fileID: 1724082888}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (35)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -12445,7 +12457,7 @@ GameObject:
   - component: {fileID: 1731291850}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (43)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13064,7 +13076,7 @@ GameObject:
   - component: {fileID: 1846045160}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (1)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13486,7 +13498,7 @@ GameObject:
   - component: {fileID: 1933704604}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (25)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13852,7 +13864,7 @@ GameObject:
   - component: {fileID: 1983276130}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (18)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14214,7 +14226,7 @@ GameObject:
   - component: {fileID: 2006286143}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (4)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14692,7 +14704,7 @@ GameObject:
   - component: {fileID: 2086728080}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (17)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14797,7 +14809,7 @@ GameObject:
   - component: {fileID: 2088418847}
   m_Layer: 0
   m_Name: "\u8DEF\u5F91\u9EDE (5)"
-  m_TagString: Untagged
+  m_TagString: FishSwim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -15389,6 +15401,67 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14c0e0744c26d1941959334dca57608e, type: 3}
+--- !u!1001 &8686945781940629864
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2423807187682973905, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: spawnRadius
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7665901460272630047, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: m_Name
+      value: FishManger
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -15414,3 +15487,4 @@ SceneRoots:
   - {fileID: 280557276}
   - {fileID: 445018022}
   - {fileID: 1250311575}
+  - {fileID: 8686945781940629864}

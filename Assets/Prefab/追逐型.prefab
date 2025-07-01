@@ -144,11 +144,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 662189508982776160}
-  - component: {fileID: 3413429162668048736}
   - component: {fileID: 1151275232145995143}
   - component: {fileID: 774438151458478483}
+  - component: {fileID: 1844408372572156675}
   m_Layer: 0
-  m_Name: "\u6F01\u8239"
+  m_Name: "\u8FFD\u9010\u578B"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -171,37 +171,6 @@ Transform:
   - {fileID: 1235644837080260656}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3413429162668048736
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4494939994870495543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cab88db65d7ddc8408ab6164078d5ddc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pathPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  moveSpeed: 8
-  rotationSpeed: 10
-  waypointThreshold: 2
-  avoidanceRadius: 10
-  avoidanceForce: 2
-  netRadius: 60
-  netHeight: 150
-  damageInterval: 0.5
-  netOffset: 80
-  netCheckSegments: 5
-  netModel: {fileID: 646996979977354662}
-  drawNetGizmos: 1
-  netDepthOffset: 100
 --- !u!54 &1151275232145995143
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -250,6 +219,31 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1844408372572156675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4494939994870495543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 052f75d0d31b7de4b9da5bc5026484f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerTarget: {fileID: 921522249257231554, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
+  moveSpeed: 4.5
+  rotationSpeed: 5
+  chaseDistance: 30
+  attackDistance: 5
+  netRadius: 60
+  netHeight: 150
+  damageInterval: 0.5
+  netOffset: 80
+  netCheckSegments: 5
+  netDepthOffset: 100
+  netModel: {fileID: 646996979977354662}
+  drawNetGizmos: 1
 --- !u!1001 &3501831545418709826
 PrefabInstance:
   m_ObjectHideFlags: 0

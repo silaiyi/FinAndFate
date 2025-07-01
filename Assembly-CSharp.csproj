@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Assets\Script\QuestionData.cs" />
     <Compile Include="Assets\Script\WaterEffectController.cs" />
+    <Compile Include="Assets\Script\ChasingBoatController.cs" />
     <Compile Include="Assets\Script\TrashBehavior.cs" />
     <Compile Include="Assets\Script\NetLOD.cs" />
     <Compile Include="Assets\Script\SwimmingController.cs" />
@@ -79,11 +80,14 @@
     <Compile Include="Assets\Script\SafeZoneBoundary.cs" />
     <Compile Include="Assets\Script\QuestionnaireManager.cs" />
     <Compile Include="Assets\Script\DirectionIndicator.cs" />
+    <Compile Include="Assets\Script\CheckpointManager.cs" />
     <Compile Include="Assets\Script\GameSceneManager.cs" />
     <Compile Include="Assets\Script\StencilBufferRenderer.cs" />
     <Compile Include="Assets\Script\CoralParticleController.cs" />
+    <Compile Include="Assets\Script\FishManager.cs" />
     <Compile Include="Assets\Script\Obstacle.cs" />
     <Compile Include="Assets\Script\SafeZoneController.cs" />
+    <Compile Include="Assets\Script\FishNPC.cs" />
     <Compile Include="Assets\Script\CompanionBehavior.cs" />
     <Compile Include="Assets\Script\CoralPresenceController.cs" />
   </ItemGroup>
