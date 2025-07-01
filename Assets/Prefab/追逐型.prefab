@@ -232,7 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerTarget: {fileID: 921522249257231554, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
-  moveSpeed: 4.5
+  moveSpeed: 5.2
   rotationSpeed: 5
   chaseDistance: 30
   attackDistance: 5
