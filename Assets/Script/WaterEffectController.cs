@@ -1,3 +1,9 @@
+/*
+ * 此游戏的部分代码实现参考了 DeepSeek-R1 AI 助手的建议。
+ * 引用格式（APA 7th）:
+ *   DeepSeek. (2024). DeepSeek-R1: An AI assistant by DeepSeek. 
+ *   Retrieved from https://deepseek.com
+ */
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,10 +28,10 @@ public class WaterEffectController : MonoBehaviour
     private bool isUnderwater;
     private bool isInDangerZone;
     private float dangerZonePollutionFactor = 1.0f; // 危險區最大污染等級
-    
+
     // 添加单例模式以便访问
     public static WaterEffectController Instance { get; private set; }
-    
+
     void Awake()
     {
         if (Instance == null)
@@ -44,26 +50,27 @@ public class WaterEffectController : MonoBehaviour
     {
         mainCamera = GetComponent<Camera>();
         swimmingController = FindObjectOfType<SwimmingController>();
-        
+
         // 初始设置
         UpdateFogSettings();
+        
     }
 
     void Update()
     {
-        if (swimmingController == null) 
+        if (swimmingController == null)
         {
             // 如果找不到游泳控制器，尝试重新查找
             swimmingController = FindObjectOfType<SwimmingController>();
             return;
         }
-        
+
         // 只有在当前场景是Level2时才应用危险区效果
         bool isLevel2 = SceneManager.GetActiveScene().name == "Level2";
-        
+
         // 更新水下状态
         isUnderwater = swimmingController.transform.position.y < waterHeight;
-        
+
         // 只在Level2场景应用危险区效果
         if (isLevel2)
         {
@@ -74,7 +81,7 @@ public class WaterEffectController : MonoBehaviour
             // 非Level2场景使用基本污染效果
             ApplyBasePollutionEffect();
         }
-        
+
         // 更新材质效果
         if (underwaterEffectMaterial != null)
         {
@@ -85,8 +92,8 @@ public class WaterEffectController : MonoBehaviour
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        Graphics.Blit(source, destination, 
-            isUnderwater && underwaterEffectMaterial != null ? 
+        Graphics.Blit(source, destination,
+            isUnderwater && underwaterEffectMaterial != null ?
             underwaterEffectMaterial : null);
     }
 
@@ -94,20 +101,20 @@ public class WaterEffectController : MonoBehaviour
     private float CalculatePollutionFactor()
     {
         if (swimmingController == null) return 0f;
-        
+
         // 获取当前场景名称
         string currentScene = SceneManager.GetActiveScene().name;
-        
+
         // 计算污染等级（0-1之间）
         int pollutionLevel = Mathf.Min(maxPollutionLevel, swimmingController.sewageScore);
         float pollutionFactor = (float)pollutionLevel / maxPollutionLevel;
-        
+
         // 如果不是危险区，污染因子减半（包括第一关和第三关）
         if (!isInDangerZone || currentScene != "Level2")
         {
             pollutionFactor *= 0.5f; // 安全区污染效果减半
         }
-        
+
         return pollutionFactor;
     }
 
@@ -122,11 +129,11 @@ public class WaterEffectController : MonoBehaviour
     void ApplyBasePollutionEffect()
     {
         if (swimmingController == null) return;
-        
+
         // 计算基础污染等级（0-1之间）
         int pollutionLevel = Mathf.Min(maxPollutionLevel, swimmingController.sewageScore);
         float pollutionFactor = (float)pollutionLevel / maxPollutionLevel;
-        
+
         ApplyFogSettings(pollutionFactor);
     }
 
@@ -137,17 +144,17 @@ public class WaterEffectController : MonoBehaviour
         // 确保能见度不低于100f
         float visibility = Mathf.Lerp(maxVisibility, minVisibility, pollutionFactor);
         visibility = Mathf.Max(visibility, minVisibility); // 强制最低能见度为100f
-        
+
         // 设置雾效参数
         RenderSettings.fog = true;
         RenderSettings.fogMode = FogMode.Linear;
         RenderSettings.fogStartDistance = visibility * 0.7f;
         RenderSettings.fogEndDistance = visibility;
-        
+
         // 设置雾效颜色
         RenderSettings.fogColor = Color.Lerp(
-            fogColorAtScore0, 
-            fogColorAtScore10, 
+            fogColorAtScore0,
+            fogColorAtScore10,
             pollutionFactor
         );
     }
@@ -156,13 +163,13 @@ public class WaterEffectController : MonoBehaviour
     {
         // 只有在Level2场景才应用危险区效果
         if (SceneManager.GetActiveScene().name != "Level2") return;
-        
+
         // 如果状态没有变化，则直接返回
         if (isInDangerZone == inDanger) return;
-        
+
         isInDangerZone = inDanger;
         UpdateFogSettings();
-        
+
         // 确保水下材质不为空
         if (underwaterEffectMaterial != null)
         {
@@ -201,27 +208,53 @@ public class WaterEffectController : MonoBehaviour
     {
         SwimmingController.OnPollutionChanged -= HandlePollutionChanged;
     }
-    
+
     // 添加场景切换监听
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         // 重置危险区状态
         isInDangerZone = false;
-        
+
         // 重置材质效果
         if (underwaterEffectMaterial != null)
         {
             underwaterEffectMaterial.SetColor("_TintColor", clearWaterColor);
             underwaterEffectMaterial.SetFloat("_Distortion", 0f);
         }
-        
+
         // 更新雾效设置
         UpdateFogSettings();
     }
-    
+
     private void OnDestroy()
     {
         // 取消场景加载监听
         SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+    public void UpdateFromPlayerPrefs()
+    {
+        // 从 PlayerPrefs 获取污染分数
+        int carbon = PlayerPrefs.GetInt("CarbonScore", 0);
+        int trash = PlayerPrefs.GetInt("TrashScore", 0);
+        int fishing = PlayerPrefs.GetInt("FishingScore", 0);
+        int sewage = PlayerPrefs.GetInt("SewageScore", 0);
+        
+        // 创建临时分数对象
+        SwimmingController.PollutionScores scores = new SwimmingController.PollutionScores
+        {
+            carbon = carbon,
+            trash = trash,
+            fishing = fishing,
+            sewage = sewage
+        };
+        
+        // 应用污染效果
+        HandlePollutionChanged(scores);
+        
+        // 确保水下效果激活
+        isUnderwater = true;
+        
+        Debug.Log("Updated water effect from PlayerPrefs: " +
+                $"Carbon={carbon}, Trash={trash}, Fishing={fishing}, Sewage={sewage}");
     }
 }

@@ -1,3 +1,9 @@
+/*
+ * 此游戏的部分代码实现参考了 DeepSeek-R1 AI 助手的建议。
+ * 引用格式（APA 7th）:
+ *   DeepSeek. (2024). DeepSeek-R1: An AI assistant by DeepSeek. 
+ *   Retrieved from https://deepseek.com
+ */
 using UnityEngine;
 using System.Collections; // 添加 System.Collections 命名空间
 using System.Collections.Generic;
