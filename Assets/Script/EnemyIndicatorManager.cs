@@ -19,9 +19,15 @@ public class EnemyIndicatorManager : MonoBehaviour
     public Color closeColor = Color.red;
     public float minScale = 0.5f;
     public float maxScale = 1.0f;
-    public float minAlpha = 0.5f;
+    public float minAlpha = 0.3f; // 增加最小透明度，确保远距离可见
     public float maxAlpha = 1.0f;
     public Vector3 screenOffset = new Vector3(0, 0, 0);
+    public float maxAngleOffset = 30f;
+    
+    [Header("Visibility Settings")]
+    public float maxVisibleDistance = 500f; // 最大可见距离
+    public float minVisibleScale = 0.2f; // 最小可见缩放
+    public float minVisibleAlpha = 0.2f; // 最小可见透明度
 
     private Transform _playerTransform;
     private Transform _enemyTarget;
@@ -105,6 +111,9 @@ public class EnemyIndicatorManager : MonoBehaviour
             currentDistance = Vector3.Distance(_playerTransform.position, _enemyTarget.position);
         }
         
+        // 确保距离在合理范围内
+        currentDistance = Mathf.Clamp(currentDistance, minDistance, maxVisibleDistance);
+        
         // 更新距离文本
         if (distanceText != null)
         {
@@ -116,89 +125,52 @@ public class EnemyIndicatorManager : MonoBehaviour
         
         // 将敌人位置转换为屏幕坐标
         Vector3 screenPos = _mainCamera.WorldToViewportPoint(_enemyTarget.position);
-        bool isTargetVisible = screenPos.z > 0 && screenPos.x > 0 && screenPos.x < 1 && screenPos.y > 0 && screenPos.y < 1;
+        bool isBehindCamera = screenPos.z < 0;
         
-        Vector3 screenPosAdjusted;
+        // 如果敌人在相机后方，翻转坐标
+        if (isBehindCamera)
+        {
+            screenPos.x = 1 - screenPos.x;
+            screenPos.y = 1 - screenPos.y;
+        }
         
-        if (isTargetVisible)
+        // 计算从屏幕中心指向敌人屏幕位置的方向
+        Vector3 screenCenter = new Vector3(0.5f, 0.5f, 0);
+        Vector3 dir = (new Vector3(screenPos.x, screenPos.y, 0) - screenCenter);
+        
+        // 如果敌人在相机后方，方向取反
+        if (isBehindCamera)
         {
-            // 目标在屏幕内
-            screenPosAdjusted = new Vector3(
-                screenPos.x,
-                screenPos.y + screenOffset.y,
-                0
-            );
-            
-            indicatorArrow.anchorMin = screenPosAdjusted;
-            indicatorArrow.anchorMax = screenPosAdjusted;
-            indicatorArrow.anchoredPosition = Vector2.zero;
-            indicatorArrow.localEulerAngles = new Vector3(0, 0, -90);
-            
-            // 在屏幕内时隐藏箭头
-            arrowImage.enabled = false;
+            dir = -dir;
         }
-        else
-        {
-            // 目标在屏幕外
-            arrowImage.enabled = true;
-            
-            // 调整屏幕位置确保在边缘内
-            screenPos.x = Mathf.Clamp(screenPos.x, 0.05f, 0.95f);
-            screenPos.y = Mathf.Clamp(screenPos.y, 0.05f, 0.95f);
-
-            if (screenPos.z < 0)
-            {
-                // 如果敌人在相机后方，翻转位置
-                screenPos.x = 1 - screenPos.x;
-                screenPos.y = 1 - screenPos.y;
-            }
-
-            Vector3 screenCenter = new Vector3(0.5f, 0.5f, 0);
-            Vector3 dir = (screenPos - screenCenter).normalized;
-            float angle = Mathf.Atan2(dir.y, dir.x);
-            float slope = Mathf.Tan(angle);
-
-            if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
-            {
-                // 水平方向优先
-                screenPosAdjusted = new Vector3(
-                    dir.x > 0 ? 1 : 0,
-                    slope * (dir.x > 0 ? 0.5f : -0.5f) + screenCenter.y,
-                    0
-                );
-            }
-            else
-            {
-                // 垂直方向优先
-                screenPosAdjusted = new Vector3(
-                    (0.5f / slope) * (dir.y > 0 ? 1 : -1) + screenCenter.x,
-                    dir.y > 0 ? 1 : 0,
-                    0
-                );
-            }
-
-            // 应用边缘填充
-            screenPosAdjusted.x = Mathf.Clamp(screenPosAdjusted.x, 
-                edgePadding / Screen.width, 
-                1f - edgePadding / Screen.width);
-                
-            screenPosAdjusted.y = Mathf.Clamp(screenPosAdjusted.y, 
-                edgePadding / Screen.height, 
-                1f - edgePadding / Screen.height);
-
-            indicatorArrow.anchorMin = screenPosAdjusted;
-            indicatorArrow.anchorMax = screenPosAdjusted;
-            indicatorArrow.anchoredPosition = Vector2.zero;
-
-            // 旋转箭头指向敌人
-            float rotationAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            indicatorArrow.localEulerAngles = new Vector3(0, 0, rotationAngle);
-        }
+        
+        // 计算旋转角度
+        float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        
+        // 添加随机角度偏移，使箭头更明显
+        float angleOffset = Mathf.Sin(Time.time * 3f) * maxAngleOffset;
+        angle += angleOffset;
+        
+        // 计算边缘位置
+        Vector3 edgePosition = CalculateEdgePosition(screenCenter, dir);
+        
+        // 设置箭头位置
+        indicatorArrow.anchorMin = edgePosition;
+        indicatorArrow.anchorMax = edgePosition;
+        indicatorArrow.anchoredPosition = Vector2.zero;
+        
+        // 设置箭头旋转
+        indicatorArrow.localEulerAngles = new Vector3(0, 0, angle);
         
         // 根据距离调整UI大小和透明度
-        float distanceFactor = Mathf.Clamp01((currentDistance - minDistance) / (maxDistance - minDistance));
-        float alpha = Mathf.Lerp(maxAlpha, minAlpha, distanceFactor);
-        float scale = Mathf.Lerp(minScale, maxScale, distanceFactor);
+        // 使用非线性曲线确保远距离时仍可见
+        float distanceFactor = Mathf.Clamp01((currentDistance - minDistance) / (maxVisibleDistance - minDistance));
+        
+        // 使用平方函数使远距离变化更平缓
+        float visibilityFactor = 1 - Mathf.Pow(distanceFactor, 0.5f);
+        
+        float alpha = Mathf.Lerp(minVisibleAlpha, maxAlpha, visibilityFactor);
+        float uiScale = Mathf.Lerp(minVisibleScale, maxScale, visibilityFactor);
         
         // 设置箭头颜色（越近越红）
         float colorLerp = Mathf.InverseLerp(minDistance, maxDistance, currentDistance);
@@ -210,7 +182,38 @@ public class EnemyIndicatorManager : MonoBehaviour
             distanceText.color = new Color(distanceText.color.r, distanceText.color.g, distanceText.color.b, alpha);
         }
         
-        indicatorArrow.localScale = new Vector3(scale, scale, 1);
+        indicatorArrow.localScale = new Vector3(uiScale, uiScale, 1);
+    }
+    
+    // 计算边缘位置
+    Vector3 CalculateEdgePosition(Vector3 screenCenter, Vector3 dir)
+    {
+        // 如果方向向量长度接近0（敌人在屏幕中心），则使用默认方向
+        if (dir.sqrMagnitude < 0.001f)
+        {
+            dir = Vector3.right;
+        }
+        
+        Vector3 dirNormalized = dir.normalized;
+        
+        // 计算缩放比例，使点位于屏幕边缘
+        float scaleX = (dirNormalized.x > 0 ? (1 - screenCenter.x) : screenCenter.x) / Mathf.Abs(dirNormalized.x);
+        float scaleY = (dirNormalized.y > 0 ? (1 - screenCenter.y) : screenCenter.y) / Mathf.Abs(dirNormalized.y);
+        float scale = Mathf.Min(scaleX, scaleY);
+        
+        // 计算边缘位置
+        Vector3 edgePosition = screenCenter + dirNormalized * scale * 0.9f; // 稍微向内缩进
+        
+        // 应用边缘填充
+        edgePosition.x = Mathf.Clamp(edgePosition.x, 
+            edgePadding / Screen.width, 
+            1f - edgePadding / Screen.width);
+            
+        edgePosition.y = Mathf.Clamp(edgePosition.y, 
+            edgePadding / Screen.height, 
+            1f - edgePadding / Screen.height);
+            
+        return edgePosition;
     }
 
     // 设置指示器可见性

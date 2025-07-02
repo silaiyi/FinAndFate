@@ -103,7 +103,7 @@ public class QuestionnaireManager : MonoBehaviour
             {
                 int optionIndex = i;
                 optionButtons[i].gameObject.SetActive(true);
-                optionButtons[i].GetComponentInChildren<Text>().text = 
+                optionButtons[i].GetComponentInChildren<Text>().text =
                     isChinese ? currentQuestion.options[i].optionTextCN : currentQuestion.options[i].optionText;
                 optionButtons[i].onClick.RemoveAllListeners();
                 optionButtons[i].onClick.AddListener(() => SelectAnswer(optionIndex));
@@ -113,6 +113,7 @@ public class QuestionnaireManager : MonoBehaviour
                 optionButtons[i].gameObject.SetActive(false);
             }
         }
+        progressText.text = (isChinese ? "问题 " : "Question ") + $"{currentQuestionIndex + 1}/{currentQuestions.Count}";
     }
 
     public void SelectAnswer(int optionIndex)
@@ -149,21 +150,36 @@ public class QuestionnaireManager : MonoBehaviour
         PlayerPrefs.SetInt("TrashScore", categoryScores[1]);
         PlayerPrefs.SetInt("FishingScore", categoryScores[2]);
         PlayerPrefs.SetInt("SewageScore", categoryScores[3]);
-        
+
         // 保存回答记录
         SaveAnswerRecords();
-        
+
         PlayerPrefs.Save();
         questionnairePanel.SetActive(false);
-        
+
         // 显示选关界面
         FindObjectOfType<StartMenuManager>()?.ShowLevelSelection();
+        SaveAllQuestionsData();
+    }
+    private void SaveAllQuestionsData()
+    {
+        QuestionListWrapper wrapper = new QuestionListWrapper { questions = allQuestions };
+        string json = JsonUtility.ToJson(wrapper);
+        PlayerPrefs.SetString("AllQuestionsData", json);
+        PlayerPrefs.Save();
+    }
+
+    [System.Serializable]
+    private class QuestionListWrapper
+    {
+        public List<QuestionData> questions;
     }
     
     // 保存回答记录到PlayerPrefs
     private void SaveAnswerRecords()
     {
-        AnswerRecordWrapper wrapper = new AnswerRecordWrapper {
+        AnswerRecordWrapper wrapper = new AnswerRecordWrapper
+        {
             records = playerAnswers
         };
         string json = JsonUtility.ToJson(wrapper);

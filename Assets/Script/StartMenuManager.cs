@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.Collections.Generic; // 添加这个命名空间
+using System.Collections.Generic;
 
 public class StartMenuManager : MonoBehaviour
 {
@@ -9,9 +9,12 @@ public class StartMenuManager : MonoBehaviour
     public GameObject mainMenuPanel;
     public GameObject levelSelectionPanel;
     public GameObject settingsPanel;
+    public GameObject difficultyPanel;
 
     [Header("Main Menu Buttons")]
     public Button startButton;
+    public Button settingsButton;
+    public Button exitButton;
 
     [Header("Level Selection")]
     public Button level1Button;
@@ -30,16 +33,28 @@ public class StartMenuManager : MonoBehaviour
     public Button backButton;
     public Button deleteSaveButton;
 
-    [Header("Questionnaire Reference")]
-    public QuestionnaireManager questionnaireManager;
+    [Header("Difficulty Settings")]
+    public Slider carbonSlider;
+    public Slider trashSlider;
+    public Slider fishingSlider;
+    public Slider sewageSlider;
+    public Text carbonLabel;
+    public Text trashLabel;
+    public Text fishingLabel;
+    public Text sewageLabel;
+    public GameObject difficultyLockPanel;
+    public Text lockText;
+    public Text difficultyTitleText;
+
+    private QuestionnaireManager questionnaireManager;
 
     void Start()
     {
-        // 初始化UI状态
         ShowMainMenu();
         
-        // 设置按钮事件监听
         startButton.onClick.AddListener(StartGame);
+        settingsButton.onClick.AddListener(ShowSettings);
+        exitButton.onClick.AddListener(ExitGame);
         level1Button.onClick.AddListener(() => LoadLevel("Level1"));
         level2Button.onClick.AddListener(() => LoadLevel("Level2"));
         level3Button.onClick.AddListener(() => LoadLevel("Level3"));
@@ -48,22 +63,85 @@ public class StartMenuManager : MonoBehaviour
         backButton.onClick.AddListener(ShowMainMenu);
         deleteSaveButton.onClick.AddListener(DeleteSaveData);
 
-        // 更新UI显示
-        deleteSaveButton.GetComponentInChildren<Text>().text = "Delete Save Data";
         bool isChinese = PlayerPrefs.GetInt("IsChinese", 0) == 1;
         QuestionnaireManager.isChinese = isChinese;
         UpdateLanguageUI();
         UpdateLevelStatusDisplay();
+
+        carbonSlider.onValueChanged.AddListener(OnCarbonSliderChanged);
+        trashSlider.onValueChanged.AddListener(OnTrashSliderChanged);
+        fishingSlider.onValueChanged.AddListener(OnFishingSliderChanged);
+        sewageSlider.onValueChanged.AddListener(OnSewageSliderChanged);
+
+        carbonSlider.value = PlayerPrefs.GetInt("CarbonScore", 0);
+        trashSlider.value = PlayerPrefs.GetInt("TrashScore", 0);
+        fishingSlider.value = PlayerPrefs.GetInt("FishingScore", 0);
+        sewageSlider.value = PlayerPrefs.GetInt("SewageScore", 0);
+
+        bool level3Completed = PlayerPrefs.GetInt("Level3Completed", 0) == 1;
+        difficultyLockPanel.SetActive(!level3Completed);
+
+        UpdateDifficultyLabels();
     }
 
-    // =====================
-    // UI面板控制方法
-    // =====================
+    private void OnCarbonSliderChanged(float value)
+    {
+        PlayerPrefs.SetInt("CarbonScore", (int)value);
+        PlayerPrefs.Save();
+        UpdateDifficultyLabels();
+    }
+
+    private void OnTrashSliderChanged(float value)
+    {
+        PlayerPrefs.SetInt("TrashScore", (int)value);
+        PlayerPrefs.Save();
+        UpdateDifficultyLabels();
+    }
+
+    private void OnFishingSliderChanged(float value)
+    {
+        PlayerPrefs.SetInt("FishingScore", (int)value);
+        PlayerPrefs.Save();
+        UpdateDifficultyLabels();
+    }
+
+    private void OnSewageSliderChanged(float value)
+    {
+        PlayerPrefs.SetInt("SewageScore", (int)value);
+        PlayerPrefs.Save();
+        UpdateDifficultyLabels();
+    }
+
+    public void UpdateDifficultyLabels()
+    {
+        carbonLabel.text = (QuestionnaireManager.isChinese ? "碳排放: " : "Carbon: ") + (int)carbonSlider.value;
+        trashLabel.text = (QuestionnaireManager.isChinese ? "垃圾污染: " : "Trash: ") + (int)trashSlider.value;
+        fishingLabel.text = (QuestionnaireManager.isChinese ? "过度捕捞: " : "Fishing: ") + (int)fishingSlider.value;
+        sewageLabel.text = (QuestionnaireManager.isChinese ? "污水排放: " : "Sewage: ") + (int)sewageSlider.value;
+        
+        lockText.text = QuestionnaireManager.isChinese ? 
+            "通关第三关后解锁" : 
+            "Complete Level 3 to unlock";
+            
+        if (difficultyTitleText != null)
+        {
+            difficultyTitleText.text = QuestionnaireManager.isChinese ? "难度设置" : "Difficulty Settings";
+        }
+    }
+
+    public void ShowDifficultySettings()
+    {
+        HideAllPanels();
+        difficultyPanel.SetActive(true);
+        backButton.gameObject.SetActive(true);
+    }
+
     public void HideAllPanels()
     {
         mainMenuPanel.SetActive(false);
         levelSelectionPanel.SetActive(false);
         settingsPanel.SetActive(false);
+        difficultyPanel.SetActive(false);
         backButton.gameObject.SetActive(false);
         deleteSaveButton.gameObject.SetActive(false);
     }
@@ -80,20 +158,18 @@ public class StartMenuManager : MonoBehaviour
         levelSelectionPanel.SetActive(true);
         backButton.gameObject.SetActive(true);
         deleteSaveButton.gameObject.SetActive(true);
-        UpdateLevelStatusDisplay(); // 每次显示时刷新状态
+        UpdateLevelStatusDisplay();
     }
 
     public void ShowSettings()
     {
         HideAllPanels();
         settingsPanel.SetActive(true);
+        difficultyPanel.SetActive(true);
         backButton.gameObject.SetActive(true);
         deleteSaveButton.gameObject.SetActive(true);
     }
 
-    // =====================
-    // 游戏流程控制方法
-    // =====================
     public void StartGame()
     {
         HideAllPanels();
@@ -109,7 +185,6 @@ public class StartMenuManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("QuestionnaireManager not found! Showing level selection directly.");
             ShowLevelSelection();
         }
     }
@@ -127,9 +202,6 @@ public class StartMenuManager : MonoBehaviour
         SceneManager.LoadScene(levelName);
     }
 
-    // =====================
-    // 语言设置方法
-    // =====================
     private void UpdateLanguageUI()
     {
         bool isChinese = QuestionnaireManager.isChinese;
@@ -138,6 +210,9 @@ public class StartMenuManager : MonoBehaviour
             englishButtonHighlight.enabled = !isChinese;
         if (chineseButtonHighlight != null)
             chineseButtonHighlight.enabled = isChinese;
+            
+        UpdateLevelStatusDisplay();
+        UpdateDifficultyLabels();
     }
 
     public void SetLanguage(bool useChinese)
@@ -146,12 +221,8 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.SetInt("IsChinese", useChinese ? 1 : 0);
         PlayerPrefs.Save();
         UpdateLanguageUI();
-        Debug.Log("Language set to: " + (useChinese ? "Chinese" : "English"));
     }
 
-    // =====================
-    // 数据管理方法
-    // =====================
     public void DeleteSaveData()
     {
         PlayerPrefs.DeleteKey("QuestionnaireCompleted");
@@ -159,59 +230,51 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.DeleteKey("TrashScore");
         PlayerPrefs.DeleteKey("FishingScore");
         PlayerPrefs.DeleteKey("SewageScore");
-        
-        // 删除关卡完成标记
         PlayerPrefs.DeleteKey("Level1Completed");
         PlayerPrefs.DeleteKey("Level2Completed");
+        PlayerPrefs.DeleteKey("Level3Completed");
         PlayerPrefs.DeleteKey("Level1BestTime");
-        
-        // 删除玩家回答记录
         PlayerPrefs.DeleteKey("PlayerAnswerRecords");
-        
         PlayerPrefs.Save();
-        Debug.Log("Save data deleted! Questionnaire will be shown again.");
         
-        // 删除后刷新关卡显示状态
         UpdateLevelStatusDisplay();
+        
+        bool level3Completed = PlayerPrefs.GetInt("Level3Completed", 0) == 1;
+        difficultyLockPanel.SetActive(!level3Completed);
     }
 
     void UpdateLevelStatusDisplay()
     {
-        // 获取关卡完成状态
         bool level1Completed = PlayerPrefs.GetInt("Level1Completed", 0) == 1;
         bool level2Completed = PlayerPrefs.GetInt("Level2Completed", 0) == 1;
+        bool level3Completed = PlayerPrefs.GetInt("Level3Completed", 0) == 1;
 
-        // 更新关卡1状态文本
         if (level1StatusText != null)
         {
-            level1StatusText.text = level1Completed ? "已完成" : "未完成";
+            level1StatusText.text = level1Completed ? 
+                (QuestionnaireManager.isChinese ? "已完成" : "Completed") : 
+                (QuestionnaireManager.isChinese ? "未完成" : "Not Completed");
         }
 
-        // 更新关卡1最佳时间文本
-        if (level1BestTimeText != null)
+        if (level1BestTimeText != null && level1Completed)
         {
-            if (level1Completed)
-            {
-                float bestTime = PlayerPrefs.GetFloat("Level1BestTime", 0);
-                int minutes = Mathf.FloorToInt(bestTime / 60f);
-                int seconds = Mathf.FloorToInt(bestTime % 60f);
-                level1BestTimeText.text = $"最佳: {minutes:00}:{seconds:00}";
-            }
-            else
-            {
-                level1BestTimeText.text = "";
-            }
+            float bestTime = PlayerPrefs.GetFloat("Level1BestTime", 0);
+            int minutes = Mathf.FloorToInt(bestTime / 60f);
+            int seconds = Mathf.FloorToInt(bestTime % 60f);
+            level1BestTimeText.text = QuestionnaireManager.isChinese ? 
+                $"最佳: {minutes:00}:{seconds:00}" : 
+                $"Best: {minutes:00}:{seconds:00}";
+        }
+        else if (level1BestTimeText != null)
+        {
+            level1BestTimeText.text = "";
         }
 
-        // 设置关卡按钮状态
         level1Button.interactable = true;
         level2Button.interactable = level1Completed;
         level3Button.interactable = level2Completed;
     }
 
-    // =====================
-    // 回答记录访问方法
-    // =====================
     public static List<QuestionnaireManager.PlayerAnswerRecord> GetPlayerAnswerRecords()
     {
         if (PlayerPrefs.HasKey("PlayerAnswerRecords"))
@@ -223,7 +286,6 @@ public class StartMenuManager : MonoBehaviour
         return new List<QuestionnaireManager.PlayerAnswerRecord>();
     }
     
-    // JSON反序列化包装类
     [System.Serializable]
     private class AnswerRecordWrapper
     {
