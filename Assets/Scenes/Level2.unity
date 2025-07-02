@@ -6430,6 +6430,14 @@ PrefabInstance:
       propertyPath: fishPrefabs.Array.size
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2423807187682973905, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: fishPrefabs.Array.data[0]
+      value: 
+      objectReference: {fileID: 4239092846950773282, guid: 9dd7ecc0b32bd884eb4257d9e72e71b5, type: 3}
+    - target: {fileID: 2423807187682973905, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: fishPrefabs.Array.data[2]
+      value: 
+      objectReference: {fileID: 5974169805027392581, guid: 198e8f0eb281efb4c8763942230dc209, type: 3}
     - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
