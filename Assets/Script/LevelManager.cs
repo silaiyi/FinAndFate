@@ -167,8 +167,13 @@ public class LevelManager : MonoBehaviour
         Time.timeScale = 0f;
         OnLevelComplete?.Invoke(success);
 
+        // 播放胜利音效
         if (success)
         {
+            // 第三关播放完整胜利音乐，其他关卡播放简短胜利音效
+            bool playFullMusic = SceneManager.GetActiveScene().name == "Level3";
+            SoundManager.Instance.PlayVictorySound(playFullMusic);
+            
             SaveLevelCompletion();
         }
         
@@ -187,8 +192,9 @@ public class LevelManager : MonoBehaviour
         skipButton.onClick.RemoveAllListeners();
         skipButton.onClick.AddListener(SkipCredits);
         creditsCoroutine = StartCoroutine(ScrollCredits());
-        
+
         UpdateCreditsUI();
+        SoundManager.Instance.PlayGameOverMusic();
     }
 
     private IEnumerator ScrollCredits()
@@ -382,6 +388,8 @@ public class LevelManager : MonoBehaviour
             Destroy(SwimmingController.Instance.gameObject);
         }
         SceneManager.LoadScene("StartMenu");
+        SoundManager.Instance.PlayBoostLoop(false);
+        SoundManager.Instance.PlayLowHealthLoop(false);
     }
     
     private void UpdateButtonTexts()

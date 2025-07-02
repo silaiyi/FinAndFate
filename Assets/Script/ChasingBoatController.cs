@@ -33,11 +33,28 @@ public class ChasingBoatController : MonoBehaviour
     private float nextDamageTime;
     private Collider[] hitColliders = new Collider[20];
     private Vector3 lastNetCenter;
+    [Header("Sound Settings")]
+    public float enginePitchMin = 0.8f;
+    public float enginePitchMax = 1.2f;
+
+    private AudioSource engineAudio;
     void Start()
     {
         if (EnemyIndicatorManager.Instance != null)
         {
             EnemyIndicatorManager.Instance.RegisterEnemy(transform);
+        }
+        engineAudio = gameObject.AddComponent<AudioSource>();
+        engineAudio.spatialBlend = 1.0f; // 3D音效
+        engineAudio.loop = true;
+        engineAudio.volume = 0.7f;
+        engineAudio.minDistance = 10f;
+        engineAudio.maxDistance = 100f;
+        
+        if (SoundManager.Instance != null)
+        {
+            engineAudio.clip = SoundManager.Instance.chasingBoatEngine;
+            engineAudio.Play();
         }
     }
     void Update()
@@ -54,6 +71,11 @@ public class ChasingBoatController : MonoBehaviour
                 Debug.LogWarning("Player target is null!");
                 return;
             }
+        }
+        if (engineAudio != null)
+        {
+            float speedFactor = Mathf.Clamp01(moveSpeed / 20f); // 速度比例
+            engineAudio.pitch = Mathf.Lerp(enginePitchMin, enginePitchMax, speedFactor);
         }
 
         // 获取玩家位置但保持高度为0
@@ -182,6 +204,10 @@ public class ChasingBoatController : MonoBehaviour
         else // 垃圾和其他对象
         {
             Destroy(target);
+        }
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SoundManager.Instance.netCatchSound, transform.position);
         }
     }
 

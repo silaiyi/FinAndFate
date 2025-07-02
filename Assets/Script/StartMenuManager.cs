@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class StartMenuManager : MonoBehaviour
 {
@@ -86,6 +87,7 @@ public class StartMenuManager : MonoBehaviour
         public string condition_EN;
     }
 
+
     void Start()
     {
         ShowMainMenu();
@@ -129,6 +131,34 @@ public class StartMenuManager : MonoBehaviour
         if (waterEffect != null)
         {
             waterEffect.UpdateFromPlayerPrefs();
+        }
+        AddButtonSounds(startButton);
+        AddButtonSounds(settingsButton);
+        AddButtonSounds(exitButton);
+        AddButtonSounds(level1Button);
+        AddButtonSounds(level2Button);
+        AddButtonSounds(level3Button);
+        AddButtonSounds(englishButton);
+        AddButtonSounds(chineseButton);
+        AddButtonSounds(backButton);
+        AddButtonSounds(deleteSaveButton);
+        AddButtonSounds(startLevelButton);
+        AddButtonSounds(cancelButton);
+    }
+    private void AddButtonSounds(Button button)
+    {
+        if (button != null)
+        {
+            // 添加悬停音效
+            var trigger = button.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+            var entry = new UnityEngine.EventSystems.EventTrigger.Entry { 
+                eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter 
+            };
+            entry.callback.AddListener((data) => SoundManager.Instance.PlayButtonHover());
+            trigger.triggers.Add(entry);
+            
+            // 添加点击音效
+            button.onClick.AddListener(() => SoundManager.Instance.PlayButtonClick());
         }
     }
     public void OnSettingsOpened()

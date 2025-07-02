@@ -245,7 +245,7 @@ public class SwimmingController : MonoBehaviour
         originalMoveSpeed = moveSpeed;
         originalRotationSpeed = rotationSpeed;
         originalPitchSpeed = pitchSpeed;
-        
+
         // 第三關設置500生命值
         if (SceneManager.GetActiveScene().name == "Level3")
         {
@@ -253,6 +253,7 @@ public class SwimmingController : MonoBehaviour
             currentMaxHealth = 500;
             currentHealth = 500;
         }
+        SoundManager.Instance.PlayAmbient();
     }
 
     // 初始保护期协程
@@ -302,7 +303,31 @@ public class SwimmingController : MonoBehaviour
             HandleFoodSpawning();
         }
         HandlePoisonEffect(); 
+        HandleBoostSound();
+    
+        // 處理低血量音效
+        HandleLowHealthSound();
     }
+    private void HandleBoostSound()
+    {
+        bool shouldPlayBoostSound = isBoosting && currentHealth > 0;
+        SoundManager.Instance.PlayBoostLoop(shouldPlayBoostSound);
+    }
+
+    private void HandleLowHealthSound()
+    {
+        bool shouldPlayLowHealthSound = isLowHealth && currentHealth > 0;
+        
+        // 根據血量調整音效強度
+        if (shouldPlayLowHealthSound)
+        {
+            float intensity = 1f - (currentHealth / (float)lowHealthThreshold);
+            SoundManager.Instance.loopSource.volume = Mathf.Clamp(intensity, 0.3f, 1f);
+        }
+        
+        SoundManager.Instance.PlayLowHealthLoop(shouldPlayLowHealthSound);
+    }
+
     void HandlePoisonEffect()
     {
         if (isPoisoned)
@@ -947,6 +972,10 @@ public class SwimmingController : MonoBehaviour
             Debug.Log("Health reached zero, triggering Die()");
             Die();
         }
+        if (damage > 0 && !isInvulnerable)
+        {
+            SoundManager.Instance.PlayHurtSound();
+        }
     }
 
     public void Heal(int amount)
@@ -959,6 +988,10 @@ public class SwimmingController : MonoBehaviour
 
         // 確保調用沙丁魚群更新
         UpdateSardineSchool();
+        if (amount > 0)
+        {
+            SoundManager.Instance.PlayEatSound();
+        }
     }
 
     public void ReduceMaxHealth(int amount)

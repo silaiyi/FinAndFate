@@ -37,6 +37,11 @@ public class FishingBoatController : MonoBehaviour
     private Vector3 lastNetCenter;
     private Vector3 avoidanceVector;
     public float netDepthOffset = 100f;
+    [Header("Sound Settings")]
+    public float enginePitchMin = 0.7f;
+    public float enginePitchMax = 1.1f;
+
+    private AudioSource engineAudio;
 
     void Start()
     {
@@ -44,22 +49,34 @@ public class FishingBoatController : MonoBehaviour
         {
             GameObject[] roadObjects = GameObject.FindGameObjectsWithTag("FishRoad");
             pathPoints = roadObjects.Select(go => go.transform).ToList();
-            
+
             if (pathPoints.Count == 0)
             {
                 Debug.LogError("No path points assigned and no FishRoad points found!");
                 enabled = false;
             }
         }
-        
+
         currentPointIndex = Random.Range(0, pathPoints.Count);
-        
+
         // 添加速度随机变化 (±25)
         moveSpeed += Random.Range(-25f, 25f);
-        
+
         if (netModel != null)
         {
             UpdateNetModelPosition();
+        }
+        engineAudio = gameObject.AddComponent<AudioSource>();
+        engineAudio.spatialBlend = 1.0f; // 3D音效
+        engineAudio.loop = true;
+        engineAudio.volume = 0.6f;
+        engineAudio.minDistance = 15f;
+        engineAudio.maxDistance = 150f;
+        
+        if (SoundManager.Instance != null)
+        {
+            engineAudio.clip = SoundManager.Instance.fishingBoatEngine;
+            engineAudio.Play();
         }
     }
 
@@ -70,12 +87,22 @@ public class FishingBoatController : MonoBehaviour
         CalculateAvoidance();
         MoveAlongPath();
         CheckForTargets();
-        
+
         lastNetCenter = transform.position - transform.forward * netOffset;
-        
+
         if (netModel != null)
         {
             UpdateNetModelPosition();
+        }
+        if (engineAudio != null)
+        {
+            float speedFactor = Mathf.Clamp01(moveSpeed / 100f); // 速度比例
+            engineAudio.pitch = Mathf.Lerp(enginePitchMin, enginePitchMax, speedFactor);
+            
+            // 根据距离调整音量
+            float distanceToPlayer = Vector3.Distance(transform.position, 
+                SwimmingController.Instance.transform.position);
+            engineAudio.volume = Mathf.Lerp(0.3f, 0.6f, 1 - (distanceToPlayer / 200f));
         }
     }
     
@@ -216,6 +243,10 @@ public class FishingBoatController : MonoBehaviour
         else
         {
             Destroy(target);
+        }
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SoundManager.Instance.netCatchSound, transform.position);
         }
     }
 
