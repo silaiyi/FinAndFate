@@ -17,7 +17,7 @@ public class StartMenuManager : MonoBehaviour
     public GameObject levelSelectionPanel;
     public GameObject settingsPanel;
     public GameObject difficultyPanel;
-    public GameObject levelIntroPanel; // 新增：关卡介绍面板
+    public GameObject levelIntroPanel;
 
     [Header("Main Menu Buttons")]
     public Button startButton;
@@ -54,7 +54,7 @@ public class StartMenuManager : MonoBehaviour
     public Text lockText;
     public Text difficultyTitleText;
 
-    [Header("Level Intro Panel")] // 新增：关卡介绍面板元素
+    [Header("Level Intro Panel")]
     public Text introTitleText;
     public Text characterLabel;
     public Text characterText;
@@ -68,10 +68,21 @@ public class StartMenuManager : MonoBehaviour
     public Text conditionText;
     public Button startLevelButton;
     public Button cancelButton;
-    private WaterEffectController waterEffect;
 
+    [Header("Tutorial Panel")]
+    public GameObject tutorialPanel;
+    public Text tutorialText;
+    public Text hintText;
+
+    [Header("Achievement Icon")]
+    public Image achievementIcon;
+    public Sprite iconA;
+    public Sprite iconB;
+
+    private WaterEffectController waterEffect;
     private QuestionnaireManager questionnaireManager;
-    private string selectedLevel; // 当前选中的关卡
+    private string selectedLevel;
+
     [System.Serializable]
     public class LevelIntroContent
     {
@@ -87,7 +98,6 @@ public class StartMenuManager : MonoBehaviour
         public string condition_EN;
     }
 
-
     void Start()
     {
         ShowMainMenu();
@@ -95,7 +105,6 @@ public class StartMenuManager : MonoBehaviour
         startButton.onClick.AddListener(StartGame);
         settingsButton.onClick.AddListener(ShowSettings);
         exitButton.onClick.AddListener(ExitGame);
-        // 修改关卡按钮监听器，改为显示介绍面板
         level1Button.onClick.AddListener(() => ShowLevelIntro("Level1"));
         level2Button.onClick.AddListener(() => ShowLevelIntro("Level2"));
         level3Button.onClick.AddListener(() => ShowLevelIntro("Level3"));
@@ -103,8 +112,6 @@ public class StartMenuManager : MonoBehaviour
         chineseButton.onClick.AddListener(() => SetLanguage(true));
         backButton.onClick.AddListener(ShowMainMenu);
         deleteSaveButton.onClick.AddListener(DeleteSaveData);
-
-        // 新增关卡介绍面板按钮监听
         startLevelButton.onClick.AddListener(LoadSelectedLevel);
         cancelButton.onClick.AddListener(CancelLevelIntro);
 
@@ -125,6 +132,7 @@ public class StartMenuManager : MonoBehaviour
 
         bool level3Completed = PlayerPrefs.GetInt("Level3Completed", 0) == 1;
         difficultyLockPanel.SetActive(!level3Completed);
+        achievementIcon.sprite = level3Completed ? iconB : iconA;
 
         UpdateDifficultyLabels();
         waterEffect = Camera.main.GetComponent<WaterEffectController>();
@@ -132,6 +140,7 @@ public class StartMenuManager : MonoBehaviour
         {
             waterEffect.UpdateFromPlayerPrefs();
         }
+
         AddButtonSounds(startButton);
         AddButtonSounds(settingsButton);
         AddButtonSounds(exitButton);
@@ -144,31 +153,52 @@ public class StartMenuManager : MonoBehaviour
         AddButtonSounds(deleteSaveButton);
         AddButtonSounds(startLevelButton);
         AddButtonSounds(cancelButton);
+
+        bool questionnaireCompleted = PlayerPrefs.GetInt("QuestionnaireCompleted", 0) == 1;
+        bool tutorialShown = PlayerPrefs.GetInt("TutorialShown", 0) == 1;
+        if (questionnaireCompleted && !tutorialShown)
+        {
+            ShowTutorial();
+            PlayerPrefs.SetInt("TutorialShown", 1);
+            PlayerPrefs.Save();
+        }
     }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            if (tutorialPanel.activeSelf)
+            {
+                HideTutorial();
+            }
+            else if (levelSelectionPanel.activeSelf)
+            {
+                ShowTutorial();
+            }
+        }
+    }
+
     private void AddButtonSounds(Button button)
     {
         if (button != null)
         {
-            // 添加悬停音效
-            var trigger = button.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>();
-            var entry = new UnityEngine.EventSystems.EventTrigger.Entry { 
-                eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter 
-            };
+            var trigger = button.gameObject.AddComponent<EventTrigger>();
+            var entry = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
             entry.callback.AddListener((data) => SoundManager.Instance.PlayButtonHover());
             trigger.triggers.Add(entry);
-            
-            // 添加点击音效
             button.onClick.AddListener(() => SoundManager.Instance.PlayButtonClick());
         }
     }
+
     public void OnSettingsOpened()
     {
-        // 当打开设置界面时更新水面效果
         if (waterEffect != null)
         {
             waterEffect.UpdateFromPlayerPrefs();
         }
     }
+
     public LevelIntroContent level1Content = new LevelIntroContent
     {
         character_CN = "小丑鱼尼莫",
@@ -211,7 +241,6 @@ public class StartMenuManager : MonoBehaviour
         condition_EN = "Shut down 3 pollution pipes, defeat final BOSS"
     };
 
-    // 新增：显示关卡介绍面板
     public void ShowLevelIntro(string levelName)
     {
         selectedLevel = levelName;
@@ -220,12 +249,10 @@ public class StartMenuManager : MonoBehaviour
         UpdateLevelIntroDisplay(levelName);
     }
 
-    // 新增：更新关卡介绍面板内容（待填充实际内容）
     private void UpdateLevelIntroDisplay(string levelName)
     {
         LevelIntroContent content = null;
-        
-        switch(levelName)
+        switch (levelName)
         {
             case "Level1":
                 content = level1Content;
@@ -237,25 +264,22 @@ public class StartMenuManager : MonoBehaviour
                 content = level3Content;
                 break;
         }
-        
-        if(content == null)
+        if (content == null)
         {
             Debug.LogError("未找到关卡内容: " + levelName);
             return;
         }
 
-        // 更新标签文本
         if (QuestionnaireManager.isChinese)
         {
             introTitleText.text = "关卡介绍 - " + levelName.Replace("Level", "第") + "关";
-            characterLabel.text = "扮演角色:";
-            mapLabel.text = "地图环境:";
+            characterLabel.text = "物種:";
+            mapLabel.text = "地點:";
             enemyLabel.text = "主要威胁:";
             introLabel.text = "任务目标:";
             conditionLabel.text = "通关条件:";
             startLevelButton.GetComponentInChildren<Text>().text = "开始挑战";
             cancelButton.GetComponentInChildren<Text>().text = "返回选择";
-            
             characterText.text = content.character_CN;
             mapText.text = content.map_CN;
             enemyText.text = content.enemy_CN;
@@ -265,45 +289,41 @@ public class StartMenuManager : MonoBehaviour
         else
         {
             introTitleText.text = "Level Intro - " + levelName;
-            characterLabel.text = "Play As:";
-            mapLabel.text = "Environment:";
+            characterLabel.text = "Species:";
+            mapLabel.text = "Locationt:";
             enemyLabel.text = "Main Threats:";
             introLabel.text = "Mission:";
             conditionLabel.text = "Win Condition:";
             startLevelButton.GetComponentInChildren<Text>().text = "Start Level";
             cancelButton.GetComponentInChildren<Text>().text = "Back";
-            
             characterText.text = content.character_EN;
             mapText.text = content.map_EN;
             enemyText.text = content.enemy_EN;
             introText.text = content.intro_EN;
             conditionText.text = content.condition_EN;
         }
-        
-        // 新增：根据关卡设置背景色
+
         Color bgColor = Color.cyan;
-        switch(levelName)
+        switch (levelName)
         {
             case "Level1":
-                bgColor = new Color(0.2f, 0.8f, 1f, 0.9f); // 浅海蓝
+                bgColor = new Color(0.2f, 0.8f, 1f, 0.9f);
                 break;
             case "Level2":
-                bgColor = new Color(0.1f, 0.4f, 0.6f, 0.9f); // 深海蓝
+                bgColor = new Color(0.1f, 0.4f, 0.6f, 0.9f);
                 break;
             case "Level3":
-                bgColor = new Color(0.8f, 0.3f, 0.2f, 0.9f); // 火山红
+                bgColor = new Color(0.8f, 0.3f, 0.2f, 0.9f);
                 break;
         }
         levelIntroPanel.GetComponent<Image>().color = bgColor;
     }
 
-    // 新增：加载选中的关卡
     private void LoadSelectedLevel()
     {
         SceneManager.LoadScene(selectedLevel);
     }
 
-    // 新增：取消关卡介绍
     private void CancelLevelIntro()
     {
         levelIntroPanel.SetActive(false);
@@ -344,11 +364,7 @@ public class StartMenuManager : MonoBehaviour
         trashLabel.text = (QuestionnaireManager.isChinese ? "垃圾污染: " : "Trash: ") + (int)trashSlider.value;
         fishingLabel.text = (QuestionnaireManager.isChinese ? "过度捕捞: " : "Fishing: ") + (int)fishingSlider.value;
         sewageLabel.text = (QuestionnaireManager.isChinese ? "污水排放: " : "Sewage: ") + (int)sewageSlider.value;
-        
-        lockText.text = QuestionnaireManager.isChinese ? 
-            "通关第三关后解锁" : 
-            "Complete Level 3 to unlock";
-            
+        lockText.text = QuestionnaireManager.isChinese ? "通关第三关后解锁" : "Complete Level 3 to unlock";
         if (difficultyTitleText != null)
         {
             difficultyTitleText.text = QuestionnaireManager.isChinese ? "难度设置" : "Difficulty Settings";
@@ -368,7 +384,8 @@ public class StartMenuManager : MonoBehaviour
         levelSelectionPanel.SetActive(false);
         settingsPanel.SetActive(false);
         difficultyPanel.SetActive(false);
-        levelIntroPanel.SetActive(false); // 新增：隐藏关卡介绍面板
+        levelIntroPanel.SetActive(false);
+        tutorialPanel.SetActive(false);
         backButton.gameObject.SetActive(false);
         deleteSaveButton.gameObject.SetActive(false);
     }
@@ -400,12 +417,10 @@ public class StartMenuManager : MonoBehaviour
     public void StartGame()
     {
         HideAllPanels();
-
         if (questionnaireManager == null)
         {
             questionnaireManager = FindObjectOfType<QuestionnaireManager>();
         }
-
         if (questionnaireManager != null)
         {
             questionnaireManager.CheckAndShowQuestionnaire();
@@ -427,27 +442,22 @@ public class StartMenuManager : MonoBehaviour
     private void UpdateLanguageUI()
     {
         bool isChinese = QuestionnaireManager.isChinese;
-        
         if (englishButtonHighlight != null)
             englishButtonHighlight.enabled = !isChinese;
         if (chineseButtonHighlight != null)
             chineseButtonHighlight.enabled = isChinese;
-            
-        // 更新删除存档按钮文本
         Text deleteButtonText = deleteSaveButton.GetComponentInChildren<Text>();
         if (deleteButtonText != null)
         {
             deleteButtonText.text = isChinese ? "删除存档" : "Delete Save";
         }
-        
         UpdateLevelStatusDisplay();
         UpdateDifficultyLabels();
-        
-        // 如果关卡介绍面板是活动的，更新其文本
         if (levelIntroPanel.activeSelf)
         {
             UpdateLevelIntroDisplay(selectedLevel);
         }
+        UpdateTutorialText();
     }
 
     public void SetLanguage(bool useChinese)
@@ -470,12 +480,13 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.DeleteKey("Level3Completed");
         PlayerPrefs.DeleteKey("Level1BestTime");
         PlayerPrefs.DeleteKey("PlayerAnswerRecords");
+        PlayerPrefs.DeleteKey("TutorialShown");
         PlayerPrefs.Save();
-        
+
         UpdateLevelStatusDisplay();
-        
         bool level3Completed = PlayerPrefs.GetInt("Level3Completed", 0) == 1;
         difficultyLockPanel.SetActive(!level3Completed);
+        achievementIcon.sprite = level3Completed ? iconB : iconA;
     }
 
     void UpdateLevelStatusDisplay()
@@ -510,6 +521,31 @@ public class StartMenuManager : MonoBehaviour
         level3Button.interactable = level2Completed;
     }
 
+    public void ShowTutorial()
+    {
+        tutorialPanel.SetActive(true);
+        UpdateTutorialText();
+    }
+
+    public void HideTutorial()
+    {
+        tutorialPanel.SetActive(false);
+    }
+
+    private void UpdateTutorialText()
+    {
+        if (QuestionnaireManager.isChinese)
+        {
+            tutorialText.text = "使用W,A,S,D進行上下左右操作,並且透過空格加速向前,但需要消耗HP。需要躲避垃圾否則會導致損失HP";
+            hintText.text = "按 ENTER 隐藏教学";
+        }
+        else
+        {
+            tutorialText.text = "Use W, A, S, D to move up, down, left, and right, and use the spacebar to speed up, but it consumes HP. You need to avoid garbage or you will lose HP.";
+            hintText.text = "Press ENTER to hide tutorial";
+        }
+    }
+
     public static List<QuestionnaireManager.PlayerAnswerRecord> GetPlayerAnswerRecords()
     {
         if (PlayerPrefs.HasKey("PlayerAnswerRecords"))
@@ -520,7 +556,7 @@ public class StartMenuManager : MonoBehaviour
         }
         return new List<QuestionnaireManager.PlayerAnswerRecord>();
     }
-    
+
     [System.Serializable]
     private class AnswerRecordWrapper
     {

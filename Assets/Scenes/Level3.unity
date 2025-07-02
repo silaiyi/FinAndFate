@@ -6204,6 +6204,10 @@ PrefabInstance:
       propertyPath: fishPrefabs.Array.size
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2423807187682973905, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: fishPrefabs.Array.data[2]
+      value: 
+      objectReference: {fileID: 1338449463708628802, guid: 45b1ee7f5f4783a498fb261ecfda7982, type: 3}
     - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
