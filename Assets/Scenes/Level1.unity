@@ -15837,6 +15837,10 @@ PrefabInstance:
       propertyPath: spawnRadius
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 2423807187682973905, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
+      propertyPath: fishPrefabs.Array.size
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 2876929983752417399, guid: 495676b99f9ad914da4ac0d951fc2985, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
