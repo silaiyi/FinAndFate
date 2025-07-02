@@ -941,7 +941,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 850, y: -100}
+  m_AnchoredPosition: {x: 850, y: -111}
   m_SizeDelta: {x: 1400, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &84653682
@@ -7903,7 +7903,7 @@ MonoBehaviour:
       predators are facing more severe challenges. Eating translucent green phytoplankton
       can restore HP. You need to pay attention to the approach of predators and
       can avoid them by entering the coral.
-    condition_CN: ":\u524D\u5F80\u6A19\u8A18\u8655\u7684\u5C0F\u919C\u9B5A\u7FA4\u3002"
+    condition_CN: "\u524D\u5F80\u6A19\u8A18\u8655\u7684\u5C0F\u919C\u9B5A\u7FA4\u3002"
     condition_EN: Go to the clownfish school at the mark.
   level2Content:
     character_CN: "\u6C99\u4E01\u9B5A\u7FA4"
