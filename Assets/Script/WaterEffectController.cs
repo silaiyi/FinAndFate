@@ -28,6 +28,10 @@ public class WaterEffectController : MonoBehaviour
     private bool isUnderwater;
     private bool isInDangerZone;
     private float dangerZonePollutionFactor = 1.0f; // 危險區最大污染等級
+    [Header("Distortion Settings")] // 新增扭曲设置区块
+    public float baseDistortion = 0.12f;          // 基础场景扭曲强度
+    public float dangerZoneDistortion = 0.72f;     // 危险区扭曲强度（增强20%）
+    public float pollutionDistortionFactor = 0.36f; // 污染对扭曲的影响系数
 
     // 添加单例模式以便访问
     public static WaterEffectController Instance { get; private set; }
@@ -87,6 +91,19 @@ public class WaterEffectController : MonoBehaviour
         {
             float pollutionFactor = CalculatePollutionFactor();
             underwaterEffectMaterial.SetFloat("_PollutionFactor", pollutionFactor);
+            
+            // 計算最終扭曲值 (增強20%後)
+            float distortion = isInDangerZone ? 
+                dangerZoneDistortion : 
+                baseDistortion;
+                
+            // 應用污染影響 (係數也增強20%)
+            distortion += pollutionFactor * pollutionDistortionFactor;
+            
+            // 確保扭曲值在合理範圍內
+            distortion = Mathf.Clamp(distortion, 0.1f, 1.0f);
+            
+            underwaterEffectMaterial.SetFloat("_WaveDistortion", distortion); // 注意屬性名變化
         }
     }
 
@@ -175,17 +192,18 @@ public class WaterEffectController : MonoBehaviour
         {
             if (inDanger)
             {
-                // 切换到危险区材质
+                // 切换到危险区材质（使用新的dangerZoneDistortion值）
                 underwaterEffectMaterial.SetColor("_TintColor", new Color(0.3f, 0.1f, 0.1f, 0.8f));
-                underwaterEffectMaterial.SetFloat("_Distortion", 0.5f);
+                // 注意：Distortion现在在Update中动态设置，这里不再需要设置
             }
             else
             {
                 // 恢复正常材质
                 underwaterEffectMaterial.SetColor("_TintColor", clearWaterColor);
-                underwaterEffectMaterial.SetFloat("_Distortion", 0f);
+                // 注意：Distortion现在在Update中动态设置，这里不再需要设置
             }
         }
+        
     }
 
     private void HandlePollutionChanged(SwimmingController.PollutionScores newScores)
@@ -218,8 +236,8 @@ public class WaterEffectController : MonoBehaviour
         // 重置材质效果
         if (underwaterEffectMaterial != null)
         {
-            underwaterEffectMaterial.SetColor("_TintColor", clearWaterColor);
-            underwaterEffectMaterial.SetFloat("_Distortion", 0f);
+            // 注意這裡屬性名改為_WaveDistortion
+            underwaterEffectMaterial.SetFloat("_WaveDistortion", 0f);
         }
 
         // 更新雾效设置

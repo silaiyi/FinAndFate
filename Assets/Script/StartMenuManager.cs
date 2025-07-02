@@ -69,11 +69,6 @@ public class StartMenuManager : MonoBehaviour
     public Button startLevelButton;
     public Button cancelButton;
 
-    [Header("Tutorial Panel")]
-    public GameObject tutorialPanel;
-    public Text tutorialText;
-    public Text hintText;
-
     [Header("Achievement Icon")]
     public Image achievementIcon;
     public Sprite iconA;
@@ -153,30 +148,6 @@ public class StartMenuManager : MonoBehaviour
         AddButtonSounds(deleteSaveButton);
         AddButtonSounds(startLevelButton);
         AddButtonSounds(cancelButton);
-
-        bool questionnaireCompleted = PlayerPrefs.GetInt("QuestionnaireCompleted", 0) == 1;
-        bool tutorialShown = PlayerPrefs.GetInt("TutorialShown", 0) == 1;
-        if (questionnaireCompleted && !tutorialShown)
-        {
-            ShowTutorial();
-            PlayerPrefs.SetInt("TutorialShown", 1);
-            PlayerPrefs.Save();
-        }
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-        {
-            if (tutorialPanel.activeSelf)
-            {
-                HideTutorial();
-            }
-            else if (levelSelectionPanel.activeSelf)
-            {
-                ShowTutorial();
-            }
-        }
     }
 
     private void AddButtonSounds(Button button)
@@ -273,8 +244,8 @@ public class StartMenuManager : MonoBehaviour
         if (QuestionnaireManager.isChinese)
         {
             introTitleText.text = "关卡介绍 - " + levelName.Replace("Level", "第") + "关";
-            characterLabel.text = "物種:";
-            mapLabel.text = "地點:";
+            characterLabel.text = "扮演角色:";
+            mapLabel.text = "地图环境:";
             enemyLabel.text = "主要威胁:";
             introLabel.text = "任务目标:";
             conditionLabel.text = "通关条件:";
@@ -289,8 +260,8 @@ public class StartMenuManager : MonoBehaviour
         else
         {
             introTitleText.text = "Level Intro - " + levelName;
-            characterLabel.text = "Species:";
-            mapLabel.text = "Locationt:";
+            characterLabel.text = "Play As:";
+            mapLabel.text = "Environment:";
             enemyLabel.text = "Main Threats:";
             introLabel.text = "Mission:";
             conditionLabel.text = "Win Condition:";
@@ -385,7 +356,6 @@ public class StartMenuManager : MonoBehaviour
         settingsPanel.SetActive(false);
         difficultyPanel.SetActive(false);
         levelIntroPanel.SetActive(false);
-        tutorialPanel.SetActive(false);
         backButton.gameObject.SetActive(false);
         deleteSaveButton.gameObject.SetActive(false);
     }
@@ -457,7 +427,14 @@ public class StartMenuManager : MonoBehaviour
         {
             UpdateLevelIntroDisplay(selectedLevel);
         }
-        UpdateTutorialText();
+        LevelManager[] levelManagers = FindObjectsOfType<LevelManager>();
+        foreach (var manager in levelManagers)
+        {
+            if (manager.tutorialPanelController != null)
+            {
+                manager.tutorialPanelController.UpdateTutorialText();
+            }
+        }
     }
 
     public void SetLanguage(bool useChinese)
@@ -466,6 +443,14 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.SetInt("IsChinese", useChinese ? 1 : 0);
         PlayerPrefs.Save();
         UpdateLanguageUI();
+        LevelManager[] levelManagers = FindObjectsOfType<LevelManager>();
+        foreach (var manager in levelManagers)
+        {
+            if (manager.tutorialPanelController != null)
+            {
+                manager.tutorialPanelController.UpdateTutorialText();
+            }
+        }
     }
 
     public void DeleteSaveData()
@@ -480,7 +465,6 @@ public class StartMenuManager : MonoBehaviour
         PlayerPrefs.DeleteKey("Level3Completed");
         PlayerPrefs.DeleteKey("Level1BestTime");
         PlayerPrefs.DeleteKey("PlayerAnswerRecords");
-        PlayerPrefs.DeleteKey("TutorialShown");
         PlayerPrefs.Save();
 
         UpdateLevelStatusDisplay();
@@ -519,31 +503,6 @@ public class StartMenuManager : MonoBehaviour
         level1Button.interactable = true;
         level2Button.interactable = level1Completed;
         level3Button.interactable = level2Completed;
-    }
-
-    public void ShowTutorial()
-    {
-        tutorialPanel.SetActive(true);
-        UpdateTutorialText();
-    }
-
-    public void HideTutorial()
-    {
-        tutorialPanel.SetActive(false);
-    }
-
-    private void UpdateTutorialText()
-    {
-        if (QuestionnaireManager.isChinese)
-        {
-            tutorialText.text = "使用W,A,S,D進行上下左右操作,並且透過空格加速向前,但需要消耗HP。需要躲避垃圾否則會導致損失HP";
-            hintText.text = "按 ENTER 隐藏教学";
-        }
-        else
-        {
-            tutorialText.text = "Use W, A, S, D to move up, down, left, and right, and use the spacebar to speed up, but it consumes HP. You need to avoid garbage or you will lose HP.";
-            hintText.text = "Press ENTER to hide tutorial";
-        }
     }
 
     public static List<QuestionnaireManager.PlayerAnswerRecord> GetPlayerAnswerRecords()

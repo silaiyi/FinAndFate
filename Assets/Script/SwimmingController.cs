@@ -3,6 +3,7 @@
  * 引用格式（APA 7th）:
  *   DeepSeek. (2024). DeepSeek-R1: An AI assistant by DeepSeek. 
  *   Retrieved from https://deepseek.com
+ Grok. (2024). Grok: An AI assistant by xAI. Retrieved from https://xai.com
  */
 using UnityEngine;
 using UnityEngine.UI;
@@ -310,12 +311,15 @@ public class SwimmingController : MonoBehaviour
     }
     private void HandleBoostSound()
     {
+        if (SoundManager.Instance == null) return;
         bool shouldPlayBoostSound = isBoosting && currentHealth > 0;
         SoundManager.Instance.PlayBoostLoop(shouldPlayBoostSound);
+        
     }
 
     private void HandleLowHealthSound()
     {
+        if (SoundManager.Instance == null) return;
         bool shouldPlayLowHealthSound = isLowHealth && currentHealth > 0;
         
         // 根據血量調整音效強度
@@ -389,18 +393,11 @@ public class SwimmingController : MonoBehaviour
         if (safeZone == null)
         {
             safeZone = FindObjectOfType<SafeZoneController>();
-
-            // 如果仍然找不到，记录错误并返回
             if (safeZone == null)
             {
-                Debug.LogError("SafeZoneController not found! Skipping safety check.");
-                return; // 直接返回，不执行后续逻辑
-            }
-            else
-            {
-                // 初始化安全区状态
-                isInSafeZone = safeZone.IsPositionInSafeZone(transform.position);
-                lastDamageTime = Time.time;
+                Debug.LogWarning("SafeZoneController not found in scene.");
+                isInSafeZone = true; // 默认为安全状态
+                return;
             }
         }
 
@@ -657,7 +654,6 @@ public class SwimmingController : MonoBehaviour
         }
         lastSafePosition = transform.position;
     }
-
     /******************************************************************
      * MOVEMENT & CAMERA CONTROLS
      ******************************************************************/
@@ -975,6 +971,14 @@ public class SwimmingController : MonoBehaviour
         if (damage > 0 && !isInvulnerable)
         {
             SoundManager.Instance.PlayHurtSound();
+        }
+        if (damage > 0 && !isInvulnerable)
+        {
+            // +++ 添加空检查 +++
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlayHurtSound();
+            }
         }
     }
 

@@ -1,3 +1,9 @@
+/*
+ * 此游戏的部分代码实现参考了 DeepSeek-R1 AI 助手的建议。
+ * 引用格式（APA 7th）:
+ *   DeepSeek. (2024). DeepSeek-R1: An AI assistant by DeepSeek. 
+ *   Retrieved from https://deepseek.com
+ */
 Shader "Custom/UnderwaterEffect"
 {
     Properties
@@ -8,11 +14,11 @@ Shader "Custom/UnderwaterEffect"
         _PollutionFactor ("Pollution Factor", Range(0, 1)) = 0
         
         [Header(Wave Settings)]
-        _WaveSpeed("Wave Speed", Range(0, 1)) = 0.08
-        _WaveStrength("Wave Strength", Range(0, 0.1)) = 0.015
+        _WaveSpeed("Wave Speed", Range(0, 1)) = 0.1
+        _WaveStrength("Wave Strength", Range(0, 1)) = 0.018
         _WaveScale("Wave Scale", Range(0.1, 10)) = 1.8
-        _WaveFrequency("Wave Frequency", Range(1, 20)) = 7.0
-        _WaveDistortion("Wave Distortion", Range(0, 1)) = 0.4
+        _WaveFrequency("Wave Frequency", Range(1, 30)) = 8.4
+        _WaveDistortion("Wave Distortion", Range(0, 1)) = 0.48
     }
     SubShader
     {
@@ -81,10 +87,14 @@ Shader "Custom/UnderwaterEffect"
             fixed4 frag (v2f i) : SV_Target
             {
                 float2 screenUV = i.screenPos.xy / i.screenPos.w;
-                float2 waveOff = waveOffset(screenUV) * (1.0 - _PollutionFactor * 0.5);
                 
-                fixed4 sceneColor = tex2D(_MainTex, i.uv + waveOff * _WaveDistortion);
+                // 直接使用最大扭曲效果（增强20%后的值）
+                float2 waveOff = waveOffset(screenUV);
                 
+                // 应用增强20%的扭曲效果
+                fixed4 sceneColor = tex2D(_MainTex, i.uv + waveOff * _WaveDistortion * 1.2);
+                
+                // 水色混合（保持原逻辑）
                 fixed4 baseWaterColor = lerp(
                     _ClearWaterColor * float4(1.0, 1.0, 1.5, 1.0),
                     _PollutedWaterColor,

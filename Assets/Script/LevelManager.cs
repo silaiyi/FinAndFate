@@ -63,6 +63,8 @@ public class LevelManager : MonoBehaviour
     
     private Coroutine creditsCoroutine;
     private bool safeZoneStarted = false;
+    [Header("Tutorial Panel")]
+    public TutorialPanelController tutorialPanelController;
 
     void Awake()
     {
@@ -94,11 +96,15 @@ public class LevelManager : MonoBehaviour
 
         resultPanel.SetActive(false);
         if (creditsPanel != null) creditsPanel.SetActive(false);
-        
+
         replayButton.onClick.AddListener(RestartLevel);
         menuButton.onClick.AddListener(ReturnToMenu);
-        
+
         UpdateButtonTexts();
+        if (tutorialPanelController != null)
+        {
+            tutorialPanelController.UpdateTutorialText();
+        }
     }
 
     void Update()
@@ -368,16 +374,20 @@ public class LevelManager : MonoBehaviour
         levelCompleted = false;
         levelStartTime = Time.time;
         safeZoneStarted = false;
-        
+
         if (companionInstance != null)
         {
             Destroy(companionInstance);
         }
-        
+
         SpawnCompanion();
-        
+
         if (resultPanel != null) resultPanel.SetActive(false);
         if (creditsPanel != null) creditsPanel.SetActive(false);
+        if (tutorialPanelController != null)
+        {
+            tutorialPanelController.gameObject.SetActive(true);
+        }
     }
 
     public void ReturnToMenu()
