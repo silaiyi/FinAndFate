@@ -2138,6 +2138,17 @@ MonoBehaviour:
   replayTextCN: "\u91CD\u65B0\u6311\u6230"
   menuTextEN: Main Menu
   menuTextCN: "\u4E3B\u9078\u55AE"
+  creditsPanel: {fileID: 0}
+  creditsText: {fileID: 0}
+  scrollSpeed: 30
+  skipButton: {fileID: 0}
+  difficultyTitleText: {fileID: 0}
+  creditsTitleText: {fileID: 0}
+  skipText: {fileID: 0}
+  creditsTitleEN: Environmental Knowledge Review
+  creditsTitleCN: "\u73AF\u4FDD\u77E5\u8BC6\u95EE\u7B54\u56DE\u987E"
+  skipButtonEN: Skip
+  skipButtonCN: "\u8DF3\u8FC7"
 --- !u!1 &237484504
 GameObject:
   m_ObjectHideFlags: 0
@@ -4565,6 +4576,14 @@ PrefabInstance:
       value: "\u63A0\u98DF\u8005"
       objectReference: {fileID: 0}
     - target: {fileID: 4083489065330826429, guid: 1e1288761c3886244804a26d88ba1936, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4377192999516493140, guid: 1e1288761c3886244804a26d88ba1936, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4964310269001912445, guid: 1e1288761c3886244804a26d88ba1936, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}

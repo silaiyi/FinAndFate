@@ -13,6 +13,7 @@ TagManager:
   - FishRoad
   - FishSwim
   - NPCFish
+  - SceneItem
   layers:
   - Default
   - TransparentFX

@@ -79,6 +79,7 @@
     <Compile Include="Assets\Script\FishingBoatController.cs" />
     <Compile Include="Assets\Script\SafeZoneBoundary.cs" />
     <Compile Include="Assets\Script\QuestionnaireManager.cs" />
+    <Compile Include="Assets\Script\RandomSceneItemSelector.cs" />
     <Compile Include="Assets\Script\DirectionIndicator.cs" />
     <Compile Include="Assets\Script\CheckpointManager.cs" />
     <Compile Include="Assets\Script\GameSceneManager.cs" />
