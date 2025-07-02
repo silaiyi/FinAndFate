@@ -7912,11 +7912,13 @@ MonoBehaviour:
     map_EN: Mediterranean Sea
     enemy_CN: "\u85CD\u9C2D\u91D1\u69CD\u9B5A"
     enemy_EN: Bluefin Tuna
-    intro_CN: "\u6578\u91CF\u9F90\u5927\u7684\u6C99\u7538\u9B5A\u56E0\u70BA\u904E\u5EA6\u6355\u9B5A\u5C0E\u81F4\u6578\u91CF\u5927\u6E1B,\u8089\u98DF\u6027\u9B5A\u985E\u9700\u8981\u66F4\u6FC0\u70C8\u5730\u6436\u596A\u6C99\u7538\u9B5A,\u6C99\u7538\u9B5A\u7FA4\u9762\u81E8\u8457\u6578\u91CF\u96E3\u4EE5\u6062\u5FA9\u7684\u56F0\u5883\u3002\u9700\u8981\u6CE8\u610F\u6355\u9B5A\u8239\u9760\u8FD1\uFF0C\u4E26\u8EB2\u907F\u6355\u6488\u3002"
-    intro_EN: The huge number of sardines has been greatly reduced due to overfishing.
+    intro_CN: "\u6578\u91CF\u9F90\u5927\u7684\u6C99\u7538\u9B5A\u56E0\u70BA\u904E\u5EA6\u6355\u9B5A\u5C0E\u81F4\u6578\u91CF\u5927\u6E1B,\u8089\u98DF\u6027\u9B5A\u985E\u9700\u8981\u66F4\u6FC0\u70C8\u5730\u6436\u596A\u6C99\u7538\u9B5A,\u6C99\u7538\u9B5A\u7FA4\u9762\u81E8\u8457\u6578\u91CF\u96E3\u4EE5\u6062\u5FA9\u7684\u56F0\u5883\u3002\u9700\u8981\u6CE8\u610F\u6355\u9B5A\u8239\u9760\u8FD1\uFF0C\u4E26\u8EB2\u907F\u6355\u6488\u3002\u9032\u98DF\u534A\u900F\u660E\u7DA0\u8272\u7684\u6D6E\u904A\u52D5\u690D\u7269\u80FD\u5920\u56DE\u5FA9HP\u3002"
+    intro_EN: 'The huge number of sardines has been greatly reduced due to overfishing.
       Carnivorous fish need to compete more fiercely for sardines, and the sardines
       are facing the dilemma of difficult recovery. You need to pay attention to
-      the approach of fishing boats and avoid fishing.
+      the approach of fishing boats and avoid fishing. Eating translucent green plankton
+      can restore HP. Victory conditions: Go to the marked place to complete the
+      migration route.'
     condition_CN: "\u524D\u5F80\u6A19\u8A18\u8655\u5B8C\u6210\u9077\u5F99\u8DEF\u7DDA\u3002"
     condition_EN: Go to the marked place to complete the migration route.
   level3Content:
