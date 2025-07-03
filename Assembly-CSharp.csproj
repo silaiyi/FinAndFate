@@ -88,6 +88,7 @@
     <Compile Include="Assets\Script\StencilBufferRenderer.cs" />
     <Compile Include="Assets\Script\CoralParticleController.cs" />
     <Compile Include="Assets\Script\FishManager.cs" />
+    <Compile Include="Assets\ButtonController.cs" />
     <Compile Include="Assets\Script\Obstacle.cs" />
     <Compile Include="Assets\Script\SafeZoneController.cs" />
     <Compile Include="Assets\Script\FishNPC.cs" />
