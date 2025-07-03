@@ -8454,6 +8454,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
+      propertyPath: minDepth
+      value: -65
+      objectReference: {fileID: 0}
+    - target: {fileID: 2734432008613790433, guid: 00e5515fa79ecfd4f9749f45f1de2794, type: 3}
       propertyPath: safeZone
       value: 
       objectReference: {fileID: 1250311572}
