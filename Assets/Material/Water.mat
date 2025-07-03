@@ -105,7 +105,7 @@ Material:
     - _Turbidity: 0.10002725
     - _UVSec: 0
     - _VisibilityAtScore10: 20
-    - _WaveDistortion: 0.15
+    - _WaveDistortion: 1
     - _WaveFrequency: 30
     - _WaveScale: 4.1
     - _WaveSpeed: 1
